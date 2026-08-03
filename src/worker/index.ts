@@ -1,4 +1,4 @@
-async function verifyTurnstile(token, remoteip, secretKey) {
+async function verifyTurnstile(token: string, remoteip: string, secretKey: string): Promise<boolean> {
   const body = new URLSearchParams();
   body.append('secret', secretKey);
   body.append('response', token);
@@ -9,11 +9,11 @@ async function verifyTurnstile(token, remoteip, secretKey) {
     body,
   });
   if (!res.ok) return false;
-  const data = await res.json();
+  const data: any = await res.json();
   return data.success === true;
 }
 
-function escapeHtml(str) {
+function escapeHtml(str: string): string {
   return String(str)
     .replace(/&/g, '&amp;')
     .replace(/</g, '&lt;')
@@ -22,12 +22,12 @@ function escapeHtml(str) {
     .replace(/'/g, '&#039;');
 }
 
-async function sendMailChannelsEmail(env, formData) {
-  const name = formData.get('name') || '';
-  const email = formData.get('email') || '';
-  const subject = formData.get('subject') || '(No subject)';
-  const message = formData.get('message') || '';
-  const htmlBody =
+async function sendMailChannelsEmail(env: any, formData: FormData): Promise<boolean> {
+  const name: string = (formData.get('name') as string) || '';
+  const email: string = (formData.get('email') as string) || '';
+  const subject: string = (formData.get('subject') as string) || '(No subject)';
+  const message: string = (formData.get('message') as string) || '';
+  const htmlBody: string =
     '<h2>New Contact Form Submission</h2>' +
     '<p><strong>Name:</strong> ' + escapeHtml(name) + '</p>' +
     '<p><strong>Email:</strong> ' + escapeHtml(email) + '</p>' +
@@ -35,14 +35,14 @@ async function sendMailChannelsEmail(env, formData) {
     '<p><strong>Message:</strong></p>' +
     '<p>' + escapeHtml(message).replace(/\n/g, '<br>') + '</p>' +
     '<hr><p style="font-size:12px;color:#999;">Sent from resilience.nexus contact form</p>';
-  const textBody =
+  const textBody: string =
     'New Contact Form Submission\n\n' +
     'Name: ' + name + '\n' +
     'Email: ' + email + '\n' +
     'Subject: ' + subject + '\n\n' +
     'Message:\n' + message + '\n\n' +
     '---\nSent from resilience.nexus contact form';
-  const payload = {
+  const payload: any = {
     personalizations: [{ to: [{ email: env.CONTACT_TO_EMAIL }] }],
     from: { email: env.CONTACT_FROM_EMAIL, name: 'Resilience Nexus Contact' },
     subject: '[Contact Form] ' + subject,
@@ -59,7 +59,7 @@ async function sendMailChannelsEmail(env, formData) {
   return res.ok;
 }
 
-async function handleContactRequest(request, env) {
+async function handleContactRequest(request: Request, env: any): Promise<Response> {
   if (request.method !== 'POST') {
     return new Response('Method not allowed', { status: 405 });
   }
@@ -69,7 +69,7 @@ async function handleContactRequest(request, env) {
       { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
-  let formData;
+  let formData: FormData;
   try {
     formData = await request.formData();
   } catch {
@@ -78,31 +78,31 @@ async function handleContactRequest(request, env) {
       { status: 400, headers: { 'Content-Type': 'application/json' } }
     );
   }
-  var turnstileToken = formData.get('cf-turnstile-response');
+  const turnstileToken: string | null = formData.get('cf-turnstile-response') as string | null;
   if (!turnstileToken) {
     return new Response(
       JSON.stringify({ success: false, error: 'Captcha verification required' }),
       { status: 403, headers: { 'Content-Type': 'application/json' } }
     );
   }
-  var clientIP = request.headers.get('CF-Connecting-IP') || '';
-  var turnstileOk = await verifyTurnstile(turnstileToken, clientIP, env.TURNSTILE_SECRET_KEY);
+  const clientIP: string = request.headers.get('CF-Connecting-IP') || '';
+  const turnstileOk: boolean = await verifyTurnstile(turnstileToken, clientIP, env.TURNSTILE_SECRET_KEY);
   if (!turnstileOk) {
     return new Response(
       JSON.stringify({ success: false, error: 'Captcha verification failed' }),
       { status: 403, headers: { 'Content-Type': 'application/json' } }
     );
   }
-  var name = formData.get('name');
-  var email = formData.get('email');
-  var message = formData.get('message');
+  const name: FormDataEntryValue | null = formData.get('name');
+  const email: FormDataEntryValue | null = formData.get('email');
+  const message: FormDataEntryValue | null = formData.get('message');
   if (!name || !email || !message) {
     return new Response(
       JSON.stringify({ success: false, error: 'Name, email, and message are required' }),
       { status: 400, headers: { 'Content-Type': 'application/json' } }
     );
   }
-  var emailOk = await sendMailChannelsEmail(env, formData);
+  const emailOk: boolean = await sendMailChannelsEmail(env, formData);
   if (!emailOk) {
     return new Response(
       JSON.stringify({ success: false, error: 'Failed to send email' }),
@@ -116,12 +116,11 @@ async function handleContactRequest(request, env) {
 }
 
 export default {
-  async fetch(request, env) {
-    var url = new URL(request.url);
+  async fetch(request: Request, env: any): Promise<Response> {
+    const url = new URL(request.url);
     if (url.pathname === '/api/contact') {
       return handleContactRequest(request, env);
     }
     return env.ASSETS.fetch(request);
   },
 };
-
