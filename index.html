@@ -1,14 +1,549 @@
 <!doctype html>
-<html lang="en">
-	<head>
-		<meta charset="UTF-8" />
-		<link rel="icon" type="image/svg+xml" href="/vite.svg" />
-		<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-		<title>Vite + React + TS</title>
-	</head>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Resilience Nexus, Resilience as an economic model</title>
+<meta name="description" content="The Resilience Nexus helps leaders, boards, governments and investors treat resilience as an economic model, measured by the Resilience Index, built on Dr Kelly Culver's framework.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Inter:wght@400;500;600;700&family=Open+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site.css">
+<style>
+  /* ---- page-specific: hero + nexus + index ---- */
+  .hero { position: relative; padding: 132px 0 120px; }
+  .hero-grid { display: grid; grid-template-columns: 1.1fr 0.9fr; gap: 56px; align-items: center; position: relative; z-index: 2; }
+  @media (max-width: 980px){ .hero-grid { grid-template-columns: 1fr; gap: 48px; } .hero { padding: 96px 0 88px; } }
+  .hero .display { color: #fff; }
+  .hero-cta { display: flex; gap: 14px; flex-wrap: wrap; margin-top: 36px; }
+  .hero-tagline { font-family: 'IBM Plex Mono', monospace; font-size: 12.5px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--cyan); margin-top: 44px; }
 
-	<body>
-		<div id="root"></div>
-		<script type="module" src="/src/react-app/main.tsx"></script>
-	</body>
+  /* nexus rings */
+  .nexus-art { position: relative; }
+  .nexus-art svg { width: 100%; height: auto; overflow: visible; }
+  .ring { mix-blend-mode: screen; }
+
+  /* partner strip */
+  .pstrip { display: flex; align-items: center; justify-content: center; gap: 14px 50px; flex-wrap: wrap; }
+  .pword { font-weight: 600; font-size: 18px; letter-spacing: -0.01em; color: var(--ink-2); opacity: .85; }
+  .pstrip .lbl { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.2em; text-transform: uppercase; color: var(--ink-3); }
+
+  /* what-is two col */
+  .two { display: grid; grid-template-columns: 0.9fr 1.1fr; gap: 64px; align-items: start; }
+  @media (max-width: 900px){ .two { grid-template-columns: 1fr; gap: 36px; } }
+  .contrast { display: grid; grid-template-columns: 1fr 1fr; gap: 0; border: 1px solid var(--line); border-radius: var(--r); overflow: hidden; margin-top: 28px; }
+  .contrast > div { padding: 26px 28px; }
+  .contrast .old { background: var(--paper-3); }
+  .contrast .new { background: linear-gradient(180deg, rgba(48,83,233,.05), rgba(60,209,245,.05)); border-left: 1px solid var(--line); }
+  .contrast h4 { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: 0.16em; text-transform: uppercase; margin-bottom: 14px; }
+  .contrast .old h4 { color: var(--ink-3); }
+  .contrast .new h4 { color: var(--cobalt); }
+  .contrast p { margin: 0; font-size: 15px; line-height: 1.55; color: var(--ink-2); }
+  @media (max-width: 560px){ .contrast { grid-template-columns: 1fr; } .contrast .new { border-left: 0; border-top: 1px solid var(--line); } }
+
+  /* model: three outcomes */
+  .outcomes { display: grid; grid-template-columns: repeat(3,1fr); gap: 22px; margin-top: 8px; }
+  @media (max-width: 860px){ .outcomes { grid-template-columns: 1fr; } }
+  .oc { padding: 30px; border-radius: var(--r); border: 1px solid var(--d-line); background: rgba(255,255,255,.03); }
+  .oc .num { font-family: 'IBM Plex Mono', monospace; font-size: 12px; letter-spacing: .2em; color: var(--d-mute); }
+  .oc h3 { color: #fff; margin: 14px 0 10px; font-size: 1.5rem; }
+  .oc p { color: var(--d-dim); font-size: 14.5px; line-height: 1.55; margin: 0; }
+  .oc .bar { height: 3px; border-radius: 3px; margin-top: 22px; }
+  .oc.p .bar { background: var(--persevere-l); } .oc.a .bar { background: var(--adapt-l); } .oc.t .bar { background: var(--transform-l); }
+
+  /* six dimensions */
+  .dims { display: grid; grid-template-columns: repeat(6,1fr); gap: 12px; margin-top: 28px; }
+  @media (max-width: 900px){ .dims { grid-template-columns: repeat(3,1fr); } }
+  @media (max-width: 520px){ .dims { grid-template-columns: repeat(2,1fr); } }
+  .dim { padding: 18px 16px; border-radius: 11px; border: 1px solid var(--line); background: var(--paper-2); text-align: center; }
+  .dim .n { font-family: 'IBM Plex Mono', monospace; font-size: 11px; color: var(--cobalt); }
+  .dim .t { font-weight: 600; font-size: 14px; margin-top: 8px; letter-spacing: -0.01em; }
+
+  /* stats */
+  .stats3 { display: grid; grid-template-columns: repeat(3,1fr); gap: 48px; text-align: center; }
+  @media (max-width: 800px){ .stats3 { grid-template-columns: 1fr; gap: 36px; text-align: center; } }
+  .stats3 .stat-num { font-size: clamp(2.56rem,4.8vw,4rem); line-height: 1.08; padding-top: 4px; }
+  .quote-big { font-family: 'Newsreader', serif; font-size: clamp(1.6rem,3vw,2.4rem); line-height: 1.3; font-style: italic; color: #fff; max-width: 22ch; }
+
+  /* index feature */
+  .idx-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; align-items: center; }
+  @media (max-width: 940px){ .idx-grid { grid-template-columns: 1fr; gap: 40px; } }
+  .hier { background: rgba(255,255,255,.03); border: 1px solid var(--d-line); border-radius: 16px; padding: 26px; }
+  .hier-row { display: flex; align-items: center; gap: 16px; }
+  .hier-lbl { font-family: 'IBM Plex Mono', monospace; font-size: 10px; letter-spacing: .18em; text-transform: uppercase; color: var(--d-mute); width: 64px; text-align: right; flex-shrink: 0; }
+  .hier-tiles { display: flex; flex-wrap: wrap; gap: 8px; flex: 1; }
+  .htile { padding: 9px 14px; border-radius: 9px; font-size: 13px; font-weight: 600; color: var(--d-dim); background: rgba(48,83,233,.14); border: 1px solid var(--d-line); }
+  .htile.master { flex: 1; text-align: center; font-size: 16px; padding: 15px; background: var(--grad); border-color: transparent; color: #fff; font-weight: 700; }
+  .htile.live { color: var(--persevere-l); border-color: rgba(45,212,191,.4); background: rgba(45,212,191,.1); }
+  .htile.preview { color: var(--adapt-l); border-color: rgba(251,191,36,.4); background: rgba(251,191,36,.1); }
+  .htile.faded { color: var(--d-mute); border-style: dashed; opacity: .8; }
+  .htile.profiles { flex: 1; text-align: center; border-style: dashed; background: rgba(48,83,233,.06); }
+  .hconn { width: 2px; height: 16px; background: linear-gradient(180deg, var(--cyan), transparent); margin: 5px auto; }
+  @media (max-width: 560px){ .hier-row { flex-direction: column; align-items: stretch; gap: 6px; } .hier-lbl { width: auto; text-align: left; } }
+  .feat-list { list-style: none; padding: 0; margin: 28px 0 0; }
+  .feat-list li { display: flex; gap: 14px; padding: 13px 0; border-top: 1px solid var(--d-line); font-size: 15px; color: var(--d-dim); }
+  .feat-list li:first-child { border-top: 0; }
+  .feat-list .k { color: var(--cyan); flex-shrink: 0; font-family: 'IBM Plex Mono', monospace; font-size: 13px; }
+
+  /* who we serve */
+  .serve { display: grid; grid-template-columns: repeat(3,1fr); gap: 22px; }
+  @media (max-width: 860px){ .serve { grid-template-columns: 1fr; } }
+  .serve .card h3 { font-size: 1.35rem; margin: 6px 0 12px; }
+  .serve .card p { color: var(--ink-2); font-size: 15px; line-height: 1.55; margin: 0; }
+  .serve .ic { width: 44px; height: 44px; border-radius: 11px; background: var(--grad-soft); border: 1px solid var(--line); display: flex; align-items: center; justify-content: center; }
+
+  /* insights preview */
+  .ins { display: grid; grid-template-columns: repeat(3,1fr); gap: 22px; }
+  @media (max-width: 860px){ .ins { grid-template-columns: 1fr; } }
+  .ins a { text-decoration: none; color: inherit; display: block; }
+  .ins .meta { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .12em; text-transform: uppercase; color: var(--ink-3); margin-bottom: 14px; }
+  .ins h3 { font-size: 1.3rem; line-height: 1.18; margin-bottom: 14px; }
+  .ins .more { font-size: 13px; color: var(--cobalt); font-weight: 600; }
+
+  /* team preview */
+  .team-row { display: grid; grid-template-columns: repeat(3,1fr); gap: 22px; }
+  @media (max-width: 760px){ .team-row { grid-template-columns: 1fr; } }
+  .tp { display: flex; gap: 16px; align-items: center; }
+  .tp .ph { width: 64px; height: 64px; border-radius: 50%; flex-shrink: 0; background:
+      repeating-linear-gradient(135deg, #e7e3d8 0 7px, #efece3 7px 14px); border: 1px solid var(--line);
+      display: flex; align-items: center; justify-content: center; font-family: 'Newsreader',serif; font-size: 22px; color: var(--ink-3); overflow: hidden; }
+  .tp .ph img { width: 100%; height: 100%; object-fit: cover; object-position: center top; }
+  .tp .nm { font-weight: 700; font-size: 16px; letter-spacing: -0.01em; }
+  .tp .rl { font-family: 'IBM Plex Mono', monospace; font-size: 11px; letter-spacing: .1em; text-transform: uppercase; color: var(--ink-3); margin-top: 3px; }
+
+  /* cta band */
+  .cta-band { text-align: center; position: relative; overflow: hidden; }
+  .cta-band .display { color: #fff; }
+</style>
+</head>
+<body>
+
+<template id="__bundler_thumbnail" data-bg-color="#070d20">
+  <svg viewBox="0 0 1200 800" xmlns="http://www.w3.org/2000/svg">
+    <rect width="1200" height="800" fill="#070d20"/>
+    <defs>
+      <linearGradient id="tg" x1="0" y1="0" x2="1" y2="1">
+        <stop stop-color="#3053E9"/><stop offset=".55" stop-color="#3793F1"/><stop offset="1" stop-color="#3CD1F5"/>
+      </linearGradient>
+    </defs>
+    <path d="M520 300c0-46 50-75 90-52l210 121c38 22 38 78 0 100L610 690c-40 23-90-6-90-52V300Z" fill="url(#tg)"/>
+    <text x="600" y="200" text-anchor="middle" fill="#ffffff" font-family="Georgia, serif" font-size="64" font-style="italic">Resilience Nexus</text>
+  </svg>
+</template>
+
+<!-- SVG sprite: brand mark + gradient -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <linearGradient id="rnGrad" x1="0" y1="0" x2="1" y2="1">
+      <stop stop-color="#3053E9"/><stop offset=".55" stop-color="#3793F1"/><stop offset="1" stop-color="#3CD1F5"/>
+    </linearGradient>
+    <symbol id="rn-mark" viewBox="0 0 64 64">
+      <path d="M18 13.6c0-3.5 3.8-5.7 6.8-3.9l29.7 17.9c2.9 1.7 2.9 5.9 0 7.6L24.8 53.1c-3 1.8-6.8-.4-6.8-3.9V13.6Z" fill="url(#rnGrad)"/>
+      <path d="M18 13.6c0-3.5 3.8-5.7 6.8-3.9l29.7 17.9c.5.3.9.7 1.2 1.1L18 31.3V13.6Z" fill="#fff" fill-opacity=".22"/>
+    </symbol>
+  </defs>
+</svg>
+
+<!-- ===================== HEADER ===================== -->
+<header class="site-header">
+  <div class="wrap-wide nav">
+    <a class="logo" href="index.html" aria-label="Resilience Nexus home">
+      <img src="assets/rn-logo-blue.png" alt="Resilience Nexus" class="logo-img">
+    </a>
+    <nav class="nav-links" aria-label="Primary">
+      <a class="nav-link active" href="index.html">Home</a>
+      <a class="nav-link" href="services.html">Services</a>
+      <a class="nav-link" href="about.html">Approach</a>
+      <a class="nav-link" href="team.html">Team</a>
+      <a class="nav-link" href="partners.html">Partners</a>
+      <a class="nav-link" href="insights.html">Insights</a>
+      
+    </nav>
+    <button class="nav-toggle" data-nav-toggle aria-label="Menu">
+      <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0b1326" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg>
+    </button>
+  </div>
+</header>
+
+<!-- ===================== HERO ===================== -->
+<section class="band-dark hero" data-screen-label="Home, Hero">
+  <div class="glow cobalt" style="width:620px;height:620px;top:-180px;left:-160px;"></div>
+  <div class="glow cyan" style="width:520px;height:520px;bottom:-220px;right:-140px;opacity:.4;"></div>
+  <div class="wrap-wide hero-grid">
+    <div class="reveal in">
+      <p class="eyebrow">Strategic resilience, measured</p>
+      <h1 class="display" style="font-size:clamp(2.03rem,4.48vw,3.92rem);">Resilience is an <em class="hl" style="color:var(--cyan)">economic model</em>, not an insurance premium.</h1>
+      <p class="lede measure-wide" style="margin-top:26px;">We help leaders, boards, governments and investors treat resilience as a strategic driver of growth, and put a number on it with the Resilience Index.</p>
+      <p class="hero-tagline">Your partner in building a resilient future</p>
+    </div>
+    <div class="nexus-art reveal in" aria-label="The Resilience Nexus: Persevere, Adapt and Transform held in parallel">
+      <svg viewBox="0 0 460 430" role="img">
+        <g>
+          <circle class="ring" cx="180" cy="168" r="132" fill="rgba(45,212,191,.30)" stroke="rgba(45,212,191,.7)" stroke-width="1.5"/>
+          <circle class="ring" cx="300" cy="168" r="132" fill="rgba(251,191,36,.26)" stroke="rgba(251,191,36,.7)" stroke-width="1.5"/>
+          <circle class="ring" cx="240" cy="272" r="132" fill="rgba(251,113,133,.26)" stroke="rgba(251,113,133,.7)" stroke-width="1.5"/>
+        </g>
+        <circle cx="240" cy="205" r="46" fill="none" stroke="#fff" stroke-width="1.5" stroke-dasharray="3 4" opacity=".8"/>
+        <text x="240" y="202" text-anchor="middle" fill="#fff" font-family="IBM Plex Mono, monospace" font-size="11" letter-spacing="1">Resilience</text>
+        <text x="240" y="217" text-anchor="middle" fill="#fff" font-family="IBM Plex Mono, monospace" font-size="11" letter-spacing="1">Nexus</text>
+        <text x="118" y="116" text-anchor="middle" fill="#5eead4" font-family="Inter, sans-serif" font-size="15" font-weight="700">Persevere</text>
+        <text x="118" y="134" text-anchor="middle" fill="#aebbd6" font-family="Inter, sans-serif" font-size="11" font-weight="500">Absorb the shock</text>
+        <text x="362" y="116" text-anchor="middle" fill="#fcd34d" font-family="Inter, sans-serif" font-size="15" font-weight="700">Adapt</text>
+        <text x="362" y="134" text-anchor="middle" fill="#aebbd6" font-family="Inter, sans-serif" font-size="11" font-weight="500">Reconfigure fast</text>
+        <text x="240" y="344" text-anchor="middle" fill="#fda4af" font-family="Inter, sans-serif" font-size="15" font-weight="700">Transform</text>
+        <text x="240" y="362" text-anchor="middle" fill="#aebbd6" font-family="Inter, sans-serif" font-size="11" font-weight="500"><tspan x="240">Reinvent &amp;</tspan><tspan x="240" dy="14">emerge stronger</tspan></text>
+      </svg>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== PARTNER STRIP ===================== -->
+<section class="section-sm band-alt">
+  <div class="wrap pstrip reveal">
+    <span class="lbl">Built with</span>
+    <span class="pword">Independent Economics</span>
+    <span class="pword">Best Practice AI</span>
+    <span class="pword">Pimms Associates</span>
+    <span class="pword">ODAL Partners</span>
+  </div>
+</section>
+
+<!-- ===================== WHAT IS RESILIENCE ===================== -->
+<section class="section" data-screen-label="What is resilience">
+  <div class="wrap two">
+    <div class="reveal">
+      <p class="eyebrow">What is resilience &amp; why it matters</p>
+      <h2 class="h-xl">The secret to a <em class="hl">resilient</em> business.</h2>
+    </div>
+    <div class="reveal">
+      <p class="lede" style="margin-top:0;">We view resilience as an economic model that strengthens competitive position, reduces the cost of disruption, and unlocks new opportunities for growth.</p>
+      <p style="color:var(--ink-2);">It goes beyond traditional risk management, which treats shocks as costs to be insured against. Strategic resilience treats them as forces that can be navigated, and even harnessed, to create durable advantage.</p>
+      <div class="contrast">
+        <div class="old">
+          <h4>Risk management</h4>
+          <p>Defensive. A premium paid to absorb the next shock. Measured by what you avoid losing.</p>
+        </div>
+        <div class="new">
+          <h4>Strategic resilience</h4>
+          <p>Generative. An economic model that compounds advantage through disruption. Measured by what you gain.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== THE MODEL ===================== -->
+<section class="band-dark section" data-screen-label="The model">
+  <div class="glow cobalt" style="width:480px;height:480px;top:-120px;right:-120px;opacity:.35;"></div>
+  <div class="wrap-wide" style="position:relative;z-index:2;">
+    <div style="max-width:720px;" class="reveal">
+      <p class="eyebrow">The Resilience Nexus</p>
+      <h2 class="h-xl">Three outcomes, held in parallel.</h2>
+      <p class="lede" style="margin-top:22px;">An organisation enters the Resilience Nexus when it pursues all three resilience outcomes at once, knowing each demands a different strategy at the same time. That is where wicked problems become solvable, and decisions create sustainable impact.</p>
+    </div>
+    <div class="outcomes" data-stagger style="margin-top:48px;">
+      <div class="oc p reveal">
+        <div class="num">01 / PERSEVERE</div>
+        <h3>Hold the line</h3>
+        <p>Absorb the shock and protect the core. The capacity to withstand disruption without losing essential function.</p>
+        <div class="bar"></div>
+      </div>
+      <div class="oc a reveal">
+        <div class="num">02 / ADAPT</div>
+        <h3>Bend, don't break</h3>
+        <p>Adjust the model to the new conditions. The agility to reconfigure quickly as the environment shifts.</p>
+        <div class="bar"></div>
+      </div>
+      <div class="oc t reveal">
+        <div class="num">03 / TRANSFORM</div>
+        <h3>Emerge stronger</h3>
+        <p>Use the disruption to become something new. The capacity to reinvent and capture advantage others miss.</p>
+        <div class="bar"></div>
+      </div>
+    </div>
+
+    <div class="reveal" style="margin-top:64px;max-width:720px;">
+      <p class="eyebrow">Scored across six dimensions</p>
+      <p class="lede" style="margin-top:0;color:var(--d-dim);">Every profile is assessed on the same six dimensional methodology that produces a score with explicit confidence, not a gut feel.</p>
+    </div>
+    <div class="dims" data-stagger>
+      <div class="dim reveal"><div class="n">01</div><div class="t" style="color:#fff">Context</div></div>
+      <div class="dim reveal"><div class="n">02</div><div class="t" style="color:#fff">Convergence</div></div>
+      <div class="dim reveal"><div class="n">03</div><div class="t" style="color:#fff">Navigation</div></div>
+      <div class="dim reveal"><div class="n">04</div><div class="t" style="color:#fff">Strategy</div></div>
+      <div class="dim reveal"><div class="n">05</div><div class="t" style="color:#fff">Outcomes</div></div>
+      <div class="dim reveal"><div class="n">06</div><div class="t" style="color:#fff">Impact</div></div>
+    </div>
+    <style>
+      .band-dark .dim { background: rgba(255,255,255,.03); border-color: var(--d-line); }
+      .band-dark .dim .n { color: var(--cyan); }
+    </style>
+  </div>
+</section>
+
+<!-- ===================== PROOF / STATS ===================== -->
+<section class="section">
+  <div class="wrap">
+    <div class="reveal" style="text-align:center;max-width:680px;margin:0 auto 56px;">
+      <p class="eyebrow center">The proof</p>
+      <h2 class="h-xl">Resilient companies outperform their peers through a crisis.</h2>
+    </div>
+    <div class="stats3" data-stagger>
+      <div class="reveal">
+        <div class="stat-num">60%</div>
+        <p class="stat-label">More likely to rebound from disruptions.</p>
+      </div>
+      <div class="reveal">
+        <div class="stat-num">120%</div>
+        <p class="stat-label">Shareholder return during the recovery phase.</p>
+      </div>
+      <div class="reveal">
+        <div class="stat-num">30%</div>
+        <p class="stat-label">Increase in innovation output.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== QUOTE ===================== -->
+<section class="band-dark section-sm">
+  <div class="wrap" style="display:flex;flex-direction:column;align-items:center;text-align:center;gap:22px;">
+    <div class="jl-photo" aria-hidden="true" style="width:84px;height:84px;border-radius:50%;flex-shrink:0;background:repeating-linear-gradient(135deg,rgba(60,209,245,.18) 0 7px,rgba(48,83,233,.14) 7px 14px);border:1px solid var(--d-line-2);display:flex;align-items:center;justify-content:center;overflow:hidden;">
+      <img src="assets/john-llewellyn.png" alt="Dr John Llewellyn" style="width:100%;height:100%;object-fit:cover;object-position:center top;" onerror="this.style.display='none';this.parentNode.insertAdjacentHTML('beforeend','<span style=\'font-family:Newsreader,serif;font-size:30px;color:var(--cyan);\'>JL</span>')">
+    </div>
+    <p class="quote-big reveal" style="margin:0 auto;">"The first person in my life that has explained resilience in a way I understand."</p>
+    <p class="reveal" style="font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.16em;text-transform:uppercase;color:var(--cyan);margin:0;">Dr&nbsp;John&nbsp;Llewellyn · Independent Economics</p>
+  </div>
+</section>
+
+<!-- ===================== THE RESILIENCE INDEX (hero feature) ===================== -->
+<section class="band-dark section" data-screen-label="The Resilience Index" style="background:linear-gradient(180deg,#070d20,#0a142e);">
+  <div class="glow cyan" style="width:560px;height:560px;top:-160px;left:-180px;opacity:.35;"></div>
+  <div class="wrap-wide idx-grid" style="position:relative;z-index:2;">
+    <div class="reveal">
+      <span class="tag live" style="margin-bottom:22px;">● Flagship · Biosecurity index live</span>
+      <h2 class="h-xl" style="margin-top:18px;">The Resilience Index.</h2>
+      <p class="lede" style="margin-top:20px;">A single, comparable score for the resilience of nations, sectors and institutions, measured on one methodology, with explicit confidence intervals rather than opinion. It gives a board the number it needs to make its own call.</p>
+      <ul class="feat-list">
+        <li><span class="k">Nexus check</span><span>The three forces scored in parallel, are you inside the Nexus, or leaning on one?</span></li>
+        <li><span class="k">Scenario test</span><span>Stress a profile against real shocks and read the before / after movement.</span></li>
+        <li><span class="k">Peer position</span><span>Compare against the G7+ or sector peers on the same scale.</span></li>
+        <li><span class="k">Board export</span><span>An investable recommendation and briefing pack, not a dashboard to interpret.</span></li>
+      </ul>
+      <div class="hero-cta">
+        <a class="btn btn-primary" href="resilience-index.html">See how the Index works <span class="arw">→</span></a>
+        <a class="btn btn-ghost" href="contact.html">Request a demo</a>
+      </div>
+    </div>
+    <div class="reveal">
+      <div class="hier">
+        <div class="hier-row"><div class="hier-lbl">Master</div><div class="hier-tiles"><div class="htile master">Global Resilience Index</div></div></div>
+        <div class="hconn"></div>
+        <div class="hier-row"><div class="hier-lbl">Indices</div><div class="hier-tiles">
+          <div class="htile live">Biosecurity</div>
+          <div class="htile preview">Family Office</div>
+          <div class="htile faded">Luxury Goods</div>
+          <div class="htile faded">AI Disruption</div>
+          <div class="htile faded">Private Equity</div>
+          <div class="htile faded">Energy</div>
+          <div class="htile faded">Defence</div>
+          <div class="htile faded">+ more</div>
+        </div></div>
+        <div class="hconn"></div>
+        <div class="hier-row"><div class="hier-lbl">Profiles</div><div class="hier-tiles"><div class="htile profiles">Countries · Companies · Family Networks</div></div></div>
+      </div>
+      <p class="muted" style="font-size:13px;text-align:center;margin-top:18px;">One methodology. Many families. Each profile scored the same way.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== THE VIEW THEY OWN ===================== -->
+<section class="section" data-screen-label="The view they own">
+  <div class="wrap two">
+    <div class="reveal">
+      <p class="eyebrow">The view they own</p>
+      <h2 class="h-xl">You're not selling them a view. They're creating their own.</h2>
+      <p class="muted" style="margin-top:18px;font-size:15px;max-width:34ch;">Dr John Llewellyn · Independent Economics</p>
+    </div>
+    <div class="reveal">
+      <p class="lede" style="margin-top:0;">For most of its history, resilience analysis has meant a judgement handed over. Someone studies you, forms a conclusion, and delivers it. You are buying their answer, and the whole transaction rests on trusting the person who reached it.</p>
+      <p style="color:var(--ink-2);">The Resilience Intelligence Suite works another way. It gives a company the instrument, and the company reaches its own conclusion by running its own profile, testing its own shocks, reading its own signals. The conclusion belongs to them, because they produced it.</p>
+      <p style="color:var(--ink-2);">A judgement you arrive at yourself, by moving the parameters on your own business and watching your resilience position shift, becomes yours. People fund and defend what is theirs. A board that has worked the instrument has formed a conviction no report could hand it, and conviction is what moves capital.</p>
+      <p style="color:var(--ink-2);">It also changes where the authority sits. A board that operates the instrument itself is looking at what its own business does under stress, on a structure it can interrogate. The authority sits with the framework, not with an analyst in the room.</p>
+      <p style="color:var(--ink-2);">This only works if the framework underneath is sound. That is the standard the Resilience Index is built to meet, and it is why the methodology matters as much as the interface.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== SERVICES ===================== -->
+<section class="section band-alt" data-screen-label="Services">
+  <div class="wrap-wide">
+    <div class="reveal" style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:44px;">
+      <div>
+        <p class="eyebrow">What we offer</p>
+        <h2 class="h-xl">Four ways to see resilience coming.</h2>
+      </div>
+      <a class="btn btn-ghost" href="services.html">All services <span class="arw">→</span></a>
+    </div>
+    <p class="lede measure-wide reveal" style="margin:-20px 0 40px;">Resilience Nexus is a resilience advisory firm, and we back our advice with a proprietary intelligence suite of four modules built on the same Persevere, Adapt and Transform (PAT) framework, letting a client sense the signal, put a number on it, stress-test it and trace it through the systems that depend on it.</p>
+    <div class="serve" data-stagger style="grid-template-columns:repeat(4,1fr);">
+      <a class="card reveal" href="resilience-index.html" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;">
+        <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3053E9" stroke-width="1.7"><circle cx="12" cy="12" r="9"/><circle cx="12" cy="12" r="4.5"/><circle cx="12" cy="12" r="0.6" fill="#3053E9"/></svg></div>
+        <h3 style="font-size:1.2rem;margin:14px 0 8px;">Resilience Index</h3>
+        <p style="color:var(--ink-2);font-size:14px;line-height:1.55;margin:0;flex:1;">One comparable resilience score, built on our proprietary six-dimensional PAT methodology.</p>
+        <span class="more" style="font-size:13px;color:var(--cobalt);font-weight:600;margin-top:16px;">Explore →</span>
+      </a>
+      <a class="card reveal" href="risk-scenario-modelling.html" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;">
+        <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3053E9" stroke-width="1.7"><path d="M5 3v6a4 4 0 0 0 4 4h6"/><path d="M19 9V3M15 9V3"/><path d="M9 13l-4 8M9 13l4 8M19 9l-3 12"/></svg></div>
+        <h3 style="font-size:1.2rem;margin:14px 0 8px;">Risk Scenario Modelling</h3>
+        <p style="color:var(--ink-2);font-size:14px;line-height:1.55;margin:0;flex:1;">Stress-test a profile against specific shocks and read the before/after movement.</p>
+        <span class="more" style="font-size:13px;color:var(--cobalt);font-weight:600;margin-top:16px;">Explore →</span>
+      </a>
+      <a class="card reveal" href="bioshield-briefing.html" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;">
+        <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3053E9" stroke-width="1.7"><path d="M12 3l7 3v5c0 4.5-3 8-7 10-4-2-7-5.5-7-10V6l7-3Z"/><path d="M9.5 12l1.8 1.8L15 10"/></svg></div>
+        <h3 style="font-size:1.2rem;margin:14px 0 8px;">BioShield Daily Briefing</h3>
+        <p style="color:var(--ink-2);font-size:14px;line-height:1.55;margin:0;flex:1;">A daily biosecurity intelligence brief, contextualised by the Best Practice AI team.</p>
+        <span class="more" style="font-size:13px;color:var(--cobalt);font-weight:600;margin-top:16px;">Explore →</span>
+      </a>
+      <a class="card reveal" href="supply-chain-modelling.html" style="text-decoration:none;color:inherit;display:flex;flex-direction:column;">
+        <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3053E9" stroke-width="1.7"><circle cx="5" cy="6" r="2.2"/><circle cx="19" cy="6" r="2.2"/><circle cx="12" cy="18" r="2.2"/><path d="M7 6h10M6 8l5 8M18 8l-5 8"/></svg></div>
+        <h3 style="font-size:1.2rem;margin:14px 0 8px;">Supply Chain Modelling</h3>
+        <p style="color:var(--ink-2);font-size:14px;line-height:1.55;margin:0;flex:1;">Map how a disruption propagates downstream to reveal hidden concentration risk.</p>
+        <span class="more" style="font-size:13px;color:var(--cobalt);font-weight:600;margin-top:16px;">Explore →</span>
+      </a>
+    </div>
+    <style>@media (max-width:980px){ .band-alt .serve{ grid-template-columns:1fr 1fr !important; } } @media (max-width:560px){ .band-alt .serve{ grid-template-columns:1fr !important; } }</style>
+  </div>
+</section>
+
+<!-- ===================== WHO WE SERVE ===================== -->
+<section class="section">
+  <div class="wrap-wide">
+    <div class="reveal" style="max-width:640px;margin-bottom:48px;">
+      <p class="eyebrow">Who we serve</p>
+      <h2 class="h-xl">Built for the people who carry the decision.</h2>
+    </div>
+    <div class="serve" data-stagger>
+      <div class="card reveal">
+        <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3053E9" stroke-width="1.8"><path d="M3 21h18M5 21V8l7-4 7 4v13M9 21v-6h6v6"/></svg></div>
+        <h3>Boards &amp; CEOs</h3>
+        <p>Move resilience from a risk-register footnote to a board-level economic strategy, with a score you can govern against.</p>
+      </div>
+      <div class="card reveal">
+        <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3053E9" stroke-width="1.8"><circle cx="12" cy="12" r="9"/><path d="M3 12h18M12 3a14 14 0 0 1 0 18M12 3a14 14 0 0 0 0 18"/></svg></div>
+        <h3>Governments &amp; policymakers</h3>
+        <p>Benchmark national resilience across G7+ economies and target the dimensions that move the needle most.</p>
+      </div>
+      <div class="card reveal">
+        <div class="ic"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#3053E9" stroke-width="1.8"><path d="M3 17l6-6 4 4 8-8M21 7v6M21 7h-6"/></svg></div>
+        <h3>Investors &amp; family offices</h3>
+        <p>Price resilience into the thesis, a comparable signal across portfolio companies, sectors and generations of capital.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== INSIGHTS PREVIEW ===================== -->
+<section class="section band-alt">
+  <div class="wrap-wide">
+    <div class="reveal" style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:44px;">
+      <div>
+        <p class="eyebrow">Insights</p>
+        <h2 class="h-xl">Thinking on strategic resilience.</h2>
+      </div>
+      <a class="btn btn-ghost" href="insights.html">All insights <span class="arw">→</span></a>
+    </div>
+    <div class="ins" data-stagger>
+      <a class="card reveal" href="paper-economic.html">
+        <div class="meta">Framework · 8 min</div>
+        <h3>Why resilience is an economic model, not a cost centre</h3>
+        <p class="muted" style="font-size:14.5px;">Reframing disruption as a source of compounding advantage, and what changes when you do.</p>
+        <p class="more" style="margin-top:18px;">Read →</p>
+      </a>
+      <a class="card reveal" href="paper-biosecurity.html">
+        <div class="meta">Biosecurity · 6 min</div>
+        <h3>Biosecurity is economic infrastructure, not a health issue</h3>
+        <p class="muted" style="font-size:14.5px;">The first family of the Resilience Index, and why it's the proof point for the rest.</p>
+        <p class="more" style="margin-top:18px;">Read →</p>
+      </a>
+      <a class="card reveal" href="paper-navigational.html">
+        <div class="meta">Leadership · 5 min</div>
+        <h3>Navigational leadership: steering without the map</h3>
+        <p class="muted" style="font-size:14.5px;">The leadership capability that decides whether an organisation reaches the Nexus.</p>
+        <p class="more" style="margin-top:18px;">Read →</p>
+      </a>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== TEAM PREVIEW ===================== -->
+<section class="section">
+  <div class="wrap-wide">
+    <div class="reveal" style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:40px;">
+      <div>
+        <p class="eyebrow">The team</p>
+        <h2 class="h-xl">Practitioners, economists, engineers.</h2>
+      </div>
+      <a class="btn btn-ghost" href="team.html">Meet the team <span class="arw">→</span></a>
+    </div>
+    <div class="team-row" data-stagger>
+      <div class="tp reveal"><div class="ph"><img src="assets/kelly-culver.jpeg" alt="Dr Kelly Culver"></div><div><div class="nm">Dr Kelly Culver</div><div class="rl">Co-Founder &amp; Director</div></div></div>
+      <div class="tp reveal"><div class="ph"><img src="assets/peter-jones.jpeg" alt="Peter Jones"></div><div><div class="nm">Peter Jones</div><div class="rl">Co-Founder &amp; Director</div></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CTA BAND ===================== -->
+<section class="band-dark section cta-band" data-screen-label="Contact CTA">
+  <div class="glow cobalt" style="width:600px;height:600px;top:-200px;left:50%;transform:translateX(-50%);opacity:.45;"></div>
+  <div class="wrap" style="position:relative;z-index:2;">
+    <p class="eyebrow center reveal">Partner with the Resilience Nexus</p>
+    <h2 class="display reveal" style="max-width:18ch;margin:0 auto;">Build a resilient future for your organisation.</h2>
+    <p class="h-lg reveal" style="max-width:24ch;margin:24px auto 0;color:#fff;">Contact us today to schedule a call.</p>
+    <div class="reveal" style="margin-top:36px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+      <a class="btn btn-primary" href="contact.html">Get in touch <span class="arw">→</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== FOOTER ===================== -->
+<footer class="site-footer">
+  <div class="wrap-wide">
+    <div class="foot-grid">
+      <div class="foot-col">
+        <a class="logo on-dark" href="index.html" style="--ink:#fff;">
+          <img src="assets/rn-logo-white.webp" alt="Resilience Nexus" class="logo-img" style="height:42px;">
+        </a>
+        <p class="foot-addr">66 Paul Street<br>London, England<br>EC2A 4NA</p>
+      </div>
+      <div class="foot-col">
+        <h4>Explore</h4>
+        <a href="index.html">Home</a>
+        <a href="services.html">Services</a>
+        <a href="about.html">Approach</a>
+        <a href="insights.html">Insights</a>
+      </div>
+      <div class="foot-col">
+        <h4>Company</h4>
+        <a href="team.html">Team</a>
+        <a href="partners.html">Partners</a>
+        
+        <a href="https://www.linkedin.com/company/resilience-nexus" target="_blank" rel="noopener">LinkedIn ↗</a>
+      </div>
+      <div class="foot-col">
+        <h4>Get in touch</h4>
+        <a href="contact.html">Get in touch</a>
+        <a href="https://www.linkedin.com/company/resilience-nexus" target="_blank" rel="noopener">LinkedIn ↗</a>
+        
+      </div>
+    </div>
+    <div class="foot-bottom">
+      <span>© <span data-year>2026</span> The Resilience Trinity Limited, trading as "Resilience Nexus". All rights reserved.</span>
+      <span><a href="policies.html">Privacy</a> · <a href="policies.html">Terms &amp; Conditions</a> · <a href="policies.html">Policies</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="site.js"></script>
+</body>
 </html>
