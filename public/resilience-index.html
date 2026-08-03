@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Resilience Index — Resilience Nexus</title>
+<meta name="description" content="The Resilience Index turns resilience into a single, comparable, board-ready score, built on our proprietary six-dimensional PAT methodology. See how it works.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Inter:wght@400;500;600;700&family=Open+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site.css">
+<style>
+  .ihero { position: relative; padding: 128px 0 96px; }
+  .ihero .display { color:#fff; max-width: 16ch; }
+  @media (max-width:720px){ .ihero{ padding:96px 0 72px; } }
+
+  .why { display:grid; grid-template-columns: 0.85fr 1.15fr; gap:64px; align-items:start; }
+  @media (max-width:900px){ .why{ grid-template-columns:1fr; gap:32px; } }
+
+  .steps { display:grid; grid-template-columns: repeat(4,1fr); gap:18px; }
+  @media (max-width:900px){ .steps{ grid-template-columns:1fr 1fr; } }
+  @media (max-width:520px){ .steps{ grid-template-columns:1fr; } }
+  .step .no { font-family:'Newsreader',serif; font-size:2.4rem; color:var(--cobalt); line-height:1; }
+  .step h3 { font-size:1.2rem; margin:14px 0 10px; }
+  .step p { color:var(--ink-2); font-size:14.5px; line-height:1.55; margin:0; }
+
+  /* interactive nexus demo */
+  .demo { display:grid; grid-template-columns: 1fr 1fr; gap:48px; align-items:center; }
+  @media (max-width:940px){ .demo{ grid-template-columns:1fr; gap:36px; } }
+  .demo-art svg { width:100%; height:auto; overflow:visible; }
+  .scn-btns { display:flex; flex-wrap:wrap; gap:10px; margin:24px 0 8px; }
+  .scn-btn { font-family:'Open Sans',sans-serif; font-size:13.5px; font-weight:600; padding:10px 16px; border-radius:999px; cursor:pointer;
+    background:rgba(255,255,255,.04); border:1px solid var(--d-line); color:var(--d-dim); transition:all .18s; }
+  .scn-btn:hover { border-color:var(--d-line-2); color:#fff; }
+  .scn-btn.active { background:var(--grad); border-color:transparent; color:#fff; }
+  .scn-desc { color:var(--d-dim); font-size:14.5px; line-height:1.6; min-height:48px; }
+  .bars { display:flex; flex-direction:column; gap:16px; margin-top:8px; }
+  .barrow { }
+  .barrow .top { display:flex; justify-content:space-between; align-items:baseline; margin-bottom:7px; }
+  .barrow .nm { font-weight:600; font-size:14px; color:#fff; }
+  .barrow .vl { font-family:'IBM Plex Mono',monospace; font-size:13px; color:var(--d-dim); font-variant-numeric:tabular-nums; }
+  .track { height:8px; border-radius:6px; background:rgba(255,255,255,.08); overflow:hidden; }
+  .fill { height:100%; border-radius:6px; transition:width .7s cubic-bezier(.2,.7,.2,1); }
+  .fill.p{ background:var(--persevere-l); } .fill.a{ background:var(--adapt-l); } .fill.t{ background:var(--transform-l); }
+  .nx-score { display:flex; align-items:baseline; gap:14px; margin-top:26px; padding-top:22px; border-top:1px solid var(--d-line); }
+  .nx-score .big { font-family:'Newsreader',serif; font-size:3.4rem; line-height:1; color:#fff; font-variant-numeric:tabular-nums; }
+  .nx-score .cap { font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--cyan); }
+  .scale-toggle { display:inline-flex; background:rgba(255,255,255,.05); border:1px solid var(--d-line); border-radius:999px; padding:3px; margin-left:auto; }
+  .scale-toggle button { font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.08em; padding:6px 12px; border-radius:999px; border:0; background:none; color:var(--d-mute); cursor:pointer; }
+  .scale-toggle button.active { background:var(--cyan); color:#04101f; font-weight:600; }
+
+  .dimgrid { display:grid; grid-template-columns:repeat(2,1fr); gap:18px; }
+  @media (max-width:760px){ .dimgrid{ grid-template-columns:1fr; } }
+  .dimcard .lbl { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+  .dimcard .lbl .n { font-family:'IBM Plex Mono',monospace; font-size:12px; color:var(--cobalt); }
+  .dimcard h3 { font-size:1.2rem; }
+  .dimcard p { color:var(--ink-2); font-size:14.5px; line-height:1.55; margin:8px 0 0; }
+
+  .fam { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+  @media (max-width:860px){ .fam{ grid-template-columns:1fr; } }
+  .fam .card { display:flex; flex-direction:column; }
+  .fam h3 { font-size:1.25rem; margin:14px 0 8px; }
+  .fam p { color:var(--ink-2); font-size:14px; line-height:1.55; margin:0; flex:1; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="rnGrad" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#3053E9"/><stop offset=".55" stop-color="#3793F1"/><stop offset="1" stop-color="#3CD1F5"/></linearGradient>
+  <symbol id="rn-mark" viewBox="0 0 64 64">
+    <path d="M18 13.6c0-3.5 3.8-5.7 6.8-3.9l29.7 17.9c2.9 1.7 2.9 5.9 0 7.6L24.8 53.1c-3 1.8-6.8-.4-6.8-3.9V13.6Z" fill="url(#rnGrad)"/>
+    <path d="M18 13.6c0-3.5 3.8-5.7 6.8-3.9l29.7 17.9c.5.3.9.7 1.2 1.1L18 31.3V13.6Z" fill="#fff" fill-opacity=".22"/>
+  </symbol>
+</defs></svg>
+
+<header class="site-header">
+  <div class="wrap-wide nav">
+    <a class="logo" href="index.html" aria-label="Resilience Nexus home"><img src="assets/rn-logo-blue.png" alt="Resilience Nexus" class="logo-img"></a>
+    <nav class="nav-links" aria-label="Primary">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link active" href="services.html">Services</a>
+      <a class="nav-link" href="about.html">Approach</a>
+      <a class="nav-link" href="team.html">Team</a>
+      <a class="nav-link" href="partners.html">Partners</a>
+      <a class="nav-link" href="insights.html">Insights</a>
+      
+    </nav>
+    <button class="nav-toggle" data-nav-toggle aria-label="Menu"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0b1326" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</header>
+
+<!-- HERO -->
+<section class="band-dark ihero" data-screen-label="Index, Hero">
+  <div class="glow cobalt" style="width:600px;height:600px;top:-200px;right:-160px;"></div>
+  <div class="wrap-wide" style="position:relative;z-index:2;">
+    <span class="tag live">● Flagship product</span>
+    <h1 class="display" style="margin-top:22px;">A single, comparable score for resilience.</h1>
+    <p class="lede measure-wide" style="margin-top:24px;">The Resilience Index turns an abstract quality into a number a board can govern, measured the same way for a country, a company or a family of capital, with explicit confidence rather than opinion.</p>
+    <div style="margin-top:34px;display:flex;gap:14px;flex-wrap:wrap;">
+      <a class="btn btn-primary" href="contact.html">Request a demo <span class="arw">→</span></a>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE DEMO -->
+<section class="section band-alt" id="demo">
+  <div class="wrap-wide">
+    <div class="reveal" style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:24px;">
+      <div>
+        <p class="eyebrow">Live demo</p>
+        <h2 class="h-lg">The Resilience Nexus, interactive.</h2>
+      </div>
+    </div>
+    <div class="reveal" style="border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:#0a1226;box-shadow:0 30px 60px -34px rgba(11,19,38,.4);">
+      <img src="assets/resilience-index-browser.png" alt="Resilience Index: Meridian Agriscience company dashboard" style="width:100%;height:auto;display:block;">
+    </div>
+    <p class="muted reveal" style="font-size:12.5px;margin-top:14px;">Illustrative model, shown here as a static preview.</p>
+  </div>
+</section>
+
+<!-- WHAT IT IS / WHY IT MATTERS -->
+<section class="section" id="how">
+  <div class="wrap why">
+    <div class="reveal">
+      <p class="eyebrow">What it is</p>
+      <h2 class="h-xl">An index, not a dashboard.</h2>
+    </div>
+    <div class="reveal">
+      <p class="lede" style="margin-top:0;">Most resilience tools hand you a wall of indicators and leave the judgement to you. The Resilience Index does the judgement, it resolves hundreds of signals into one score, on one scale, with a confidence interval attached.</p>
+      <p style="color:var(--ink-2);">It runs on our proprietary <strong>PAT framework</strong>, Persevere, Adapt, Transform, the methodology we own. Every new signal updates the score by a calibrated amount, and the framework is version-controlled and auditable. The result is comparable across nations, sectors and institutions, and stable enough to set strategy against.</p>
+    </div>
+  </div>
+  <div class="wrap" style="margin-top:56px;">
+    <div class="steps reveal" data-stagger>
+      <div class="step reveal"><div class="no">01</div><h3>Signals in</h3><p>Hundreds of structured and qualitative signals, data feeds, interviews, expert priors, enter the network.</p></div>
+      <div class="step reveal"><div class="no">02</div><h3>Belief updates</h3><p>Each signal updates the relevant indicator by a calibrated amount, with uncertainty carried through.</p></div>
+      <div class="step reveal"><div class="no">03</div><h3>Score out</h3><p>Indicators roll up into the three outcomes and six dimensions, one score, with a confidence band.</p></div>
+      <div class="step reveal"><div class="no">04</div><h3>Decision out</h3><p>The score becomes a recommendation and a board-ready brief, the gap to close, and how.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- WHY IT'S UNIQUE -->
+<section class="band-alt section-sm">
+  <div class="wrap">
+    <div class="reveal" style="max-width:760px;">
+      <p class="eyebrow">Why it's different</p>
+      <h2 class="h-lg">Three things no risk score does at once.</h2>
+    </div>
+    <div class="dimgrid reveal" style="margin-top:32px;grid-template-columns:repeat(3,1fr);">
+      <div class="card"><h3 style="font-size:1.15rem;">Comparable</h3><p style="color:var(--ink-2);font-size:14.5px;margin-top:10px;">One methodology means a country and a company can sit on the same axis. Resilience becomes a currency, not a narrative.</p></div>
+      <div class="card"><h3 style="font-size:1.15rem;">Honest about uncertainty</h3><p style="color:var(--ink-2);font-size:14.5px;margin-top:10px;">Every score carries a confidence interval. You see not just the number, but how much to trust it.</p></div>
+      <div class="card"><h3 style="font-size:1.15rem;">Built to act on</h3><p style="color:var(--ink-2);font-size:14.5px;margin-top:10px;">It ends in a recommendation and an export, the single biggest gap, and the investable move to close it.</p></div>
+    </div>
+    <style>@media (max-width:860px){ .band-alt .dimgrid{ grid-template-columns:1fr !important; } }</style>
+  </div>
+</section>
+
+<!-- INTERACTIVE NEXUS CHECK -->
+<section class="band-dark section" data-screen-label="Index, Interactive Nexus check">
+  <div class="glow cyan" style="width:520px;height:520px;bottom:-180px;left:-160px;opacity:.4;"></div>
+  <div class="wrap-wide" style="position:relative;z-index:2;">
+    <div class="reveal" style="max-width:680px;margin-bottom:40px;">
+      <p class="eyebrow">Try it · the Nexus check</p>
+      <h2 class="h-xl">Stress-test a profile.</h2>
+      <p class="lede" style="margin-top:18px;">Pick a shock and watch the three forces move. A profile is <em class="hl" style="color:var(--cyan)">inside the Nexus</em> only when all three hold up together, illustrative biosecurity data shown.</p>
+    </div>
+    <div class="demo">
+      <div>
+        <div style="display:flex;align-items:center;gap:14px;flex-wrap:wrap;">
+          <span style="font-family:'IBM Plex Mono',monospace;font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--d-mute);">Scenario</span>
+          <div class="scale-toggle" id="scaleToggle">
+            <button class="active" data-scale="10">1–10</button>
+            <button data-scale="100">0–100%</button>
+          </div>
+        </div>
+        <div class="scn-btns" id="scnBtns"></div>
+        <p class="scn-desc" id="scnDesc"></p>
+        <div class="bars">
+          <div class="barrow"><div class="top"><span class="nm">Persevere</span><span class="vl" id="vP"></span></div><div class="track"><div class="fill p" id="fP"></div></div></div>
+          <div class="barrow"><div class="top"><span class="nm">Adapt</span><span class="vl" id="vA"></span></div><div class="track"><div class="fill a" id="fA"></div></div></div>
+          <div class="barrow"><div class="top"><span class="nm">Transform</span><span class="vl" id="vT"></span></div><div class="track"><div class="fill t" id="fT"></div></div></div>
+        </div>
+        <div class="nx-score">
+          <span class="big" id="nxBig"></span>
+          <div><div class="cap">Nexus score</div><div id="nxVerdict" style="color:var(--d-dim);font-size:13px;margin-top:4px;"></div></div>
+        </div>
+      </div>
+      <div class="demo-art">
+        <svg viewBox="0 0 460 430" role="img" aria-label="Nexus rings">
+          <circle id="rP" cx="180" cy="168" r="132" fill="rgba(45,212,191,.30)" stroke="rgba(45,212,191,.7)" stroke-width="1.5" style="mix-blend-mode:screen;transition:r .6s;"/>
+          <circle id="rA" cx="300" cy="168" r="132" fill="rgba(251,191,36,.26)" stroke="rgba(251,191,36,.7)" stroke-width="1.5" style="mix-blend-mode:screen;transition:r .6s;"/>
+          <circle id="rT" cx="240" cy="272" r="132" fill="rgba(251,113,133,.26)" stroke="rgba(251,113,133,.7)" stroke-width="1.5" style="mix-blend-mode:screen;transition:r .6s;"/>
+          <circle cx="240" cy="205" r="46" fill="none" stroke="#fff" stroke-width="1.5" stroke-dasharray="3 4" opacity=".8"/>
+          <text x="240" y="202" text-anchor="middle" fill="#fff" font-family="IBM Plex Mono, monospace" font-size="11" letter-spacing="1">Resilience</text>
+          <text x="240" y="217" text-anchor="middle" fill="#fff" font-family="IBM Plex Mono, monospace" font-size="11" letter-spacing="1">Nexus</text>
+          <text x="118" y="116" text-anchor="middle" fill="#5eead4" font-family="Inter, sans-serif" font-size="15" font-weight="700">Persevere</text>
+          <text x="118" y="134" text-anchor="middle" fill="#aebbd6" font-family="Inter, sans-serif" font-size="11" font-weight="500">Absorb the shock</text>
+          <text x="362" y="116" text-anchor="middle" fill="#fcd34d" font-family="Inter, sans-serif" font-size="15" font-weight="700">Adapt</text>
+          <text x="362" y="134" text-anchor="middle" fill="#aebbd6" font-family="Inter, sans-serif" font-size="11" font-weight="500">Reconfigure fast</text>
+          <text x="240" y="344" text-anchor="middle" fill="#fda4af" font-family="Inter, sans-serif" font-size="15" font-weight="700">Transform</text>
+          <text x="240" y="362" text-anchor="middle" fill="#aebbd6" font-family="Inter, sans-serif" font-size="11" font-weight="500"><tspan x="240">Reinvent &amp;</tspan><tspan x="240" dy="14">emerge stronger</tspan></text>
+        </svg>
+      </div>
+    </div>
+    <p class="muted" style="font-size:12px;margin-top:28px;">Illustrative data for demonstration only. Not a real assessment.</p>
+  </div>
+</section>
+
+<!-- SIX DIMENSIONS -->
+<section class="section">
+  <div class="wrap">
+    <div class="reveal" style="max-width:680px;margin-bottom:40px;">
+      <p class="eyebrow">The methodology</p>
+      <h2 class="h-xl">Six dimensions behind every score.</h2>
+    </div>
+    <div class="dimgrid" data-stagger>
+      <div class="card dimcard reveal"><div class="lbl"><span class="n">01</span><h3>Context</h3></div><p>The external environment a profile operates in, the shocks it is genuinely exposed to.</p></div>
+      <div class="card dimcard reveal"><div class="lbl"><span class="n">02</span><h3>Convergence</h3></div><p>How risks compound and collide, where separate threats become one systemic event.</p></div>
+      <div class="card dimcard reveal"><div class="lbl"><span class="n">03</span><h3>Navigation</h3></div><p>Navigational leadership, the capacity to steer through ambiguity without a fixed map.</p></div>
+      <div class="card dimcard reveal"><div class="lbl"><span class="n">04</span><h3>Strategy</h3></div><p>Whether Persevere, Adapt and Transform strategies are actually running in parallel.</p></div>
+      <div class="card dimcard reveal"><div class="lbl"><span class="n">05</span><h3>Outcomes</h3></div><p>The measurable results the strategy is producing under real conditions.</p></div>
+      <div class="card dimcard reveal"><div class="lbl"><span class="n">06</span><h3>Impact</h3></div><p>The durable, sustainable value created, the point of resilience, not a by-product.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- FAMILIES -->
+<section class="band-alt section">
+  <div class="wrap-wide">
+    <div class="reveal" style="max-width:680px;margin-bottom:40px;">
+      <p class="eyebrow">One master index, many families</p>
+      <h2 class="h-xl">Biosecurity first. The rest to follow.</h2>
+      <p class="lede" style="margin-top:18px;">Each family applies the same methodology to a different domain. Biosecurity is being built out first as economic infrastructure, the proof point for the broader Global Resilience Index.</p>
+    </div>
+    <div class="fam" data-stagger>
+      <div class="card reveal"><span class="tag live">● Live</span><h3>Biosecurity Resilience Index</h3><p>Countries and companies scored on biosecurity exposure, the flagship family and the proof point for the wider Index.</p></div>
+      <div class="card reveal"><span class="tag preview">Preview</span><h3>Family Office Resilience Index</h3><p>Resilience of capital across generations, an anti-fragmentation read for principals and their advisors.</p></div>
+      <div class="card reveal"><span class="tag">Roadmap</span><h3>Sector indices</h3><p>Luxury goods, AI disruption, private equity, energy and defence, each a family under the master index.</p></div>
+    </div>
+  </div>
+</section>
+
+<!-- CTA -->
+<section class="band-dark section cta-band" style="text-align:center;position:relative;overflow:hidden;">
+  <div class="glow cobalt" style="width:560px;height:560px;top:-200px;left:50%;transform:translateX(-50%);opacity:.45;"></div>
+  <div class="wrap" style="position:relative;z-index:2;">
+    <p class="eyebrow center reveal">How resilient is your business?</p>
+    <h2 class="display reveal" style="max-width:16ch;margin:0 auto;color:#fff;font-size:clamp(2rem,4vw,3.4rem);">Put a number on your resilience.</h2>
+    <div class="reveal" style="margin-top:34px;display:flex;gap:14px;justify-content:center;flex-wrap:wrap;">
+      <a class="btn btn-primary" href="contact.html">Request a demo <span class="arw">→</span></a>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="wrap-wide">
+    <div class="foot-grid">
+      <div class="foot-col">
+        <a class="logo on-dark" href="index.html" style="--ink:#fff;"><img src="assets/rn-logo-white.webp" alt="Resilience Nexus" class="logo-img" style="height:42px;"></a>
+        <p class="foot-addr">66 Paul Street<br>London, England<br>EC2A 4NA</p>
+      </div>
+      <div class="foot-col"><h4>Explore</h4><a href="index.html">Home</a><a href="services.html">Services</a><a href="about.html">Approach</a><a href="insights.html">Insights</a></div>
+      <div class="foot-col"><h4>Company</h4><a href="team.html">Team</a><a href="partners.html">Partners</a><a href="https://www.linkedin.com/company/resilience-nexus" target="_blank" rel="noopener">LinkedIn ↗</a></div>
+      <div class="foot-col"><h4>Get in touch</h4><a href="contact.html">Get in touch</a></div>
+    </div>
+    <div class="foot-bottom">
+      <span>© <span data-year>2026</span> The Resilience Trinity Limited, trading as "Resilience Nexus". All rights reserved.</span>
+      <span><a href="policies.html">Privacy</a> · <a href="policies.html">Terms &amp; Conditions</a> · <a href="policies.html">Policies</a></span>
+    </div>
+  </div>
+</footer>
+
+<script src="site.js"></script>
+<script>
+(function(){
+  var scenarios = [
+    { id:'base', name:'Baseline', desc:'A balanced biosecurity posture in steady-state conditions, all three forces broadly intact.', p:7.4, a:6.8, t:6.1 },
+    { id:'h5n1', name:'H5N1 spillover', desc:'A high-pathogenicity avian influenza spillover. Perseverance holds, but transformation capacity is exposed.', p:6.9, a:5.4, t:3.8 },
+    { id:'lab', name:'Lab-leak event', desc:'A containment failure at a research facility. Trust shocks navigation and adaptive response.', p:5.6, a:4.7, t:4.2 },
+    { id:'amr', name:'AMR escalation', desc:'Antimicrobial resistance outpaces the pipeline. A slow shock that punishes weak transformation most.', p:6.4, a:5.9, t:3.1 },
+    { id:'supply', name:'API supply shock', desc:'Active-ingredient supply disruption. Adaptation strained; perseverance and transform diverge.', p:6.1, a:4.3, t:5.0 }
+  ];
+  var scale = 10;
+  var cur = scenarios[0];
+  var btns = document.getElementById('scnBtns');
+  scenarios.forEach(function(s,i){
+    var b = document.createElement('button');
+    b.className = 'scn-btn' + (i===0?' active':'');
+    b.textContent = s.name; b.dataset.id = s.id;
+    b.addEventListener('click', function(){
+      cur = s;
+      [].forEach.call(btns.children, function(c){ c.classList.toggle('active', c.dataset.id===s.id); });
+      render();
+    });
+    btns.appendChild(b);
+  });
+  document.getElementById('scaleToggle').addEventListener('click', function(e){
+    var t = e.target.closest('button'); if(!t) return;
+    scale = +t.dataset.scale;
+    [].forEach.call(this.children, function(c){ c.classList.toggle('active', c===t); });
+    render();
+  });
+  function fmt(v){ return scale===10 ? v.toFixed(1) : Math.round(v*10)+'%'; }
+  function render(){
+    var p=cur.p, a=cur.a, t=cur.t;
+    document.getElementById('fP').style.width=(p*10)+'%';
+    document.getElementById('fA').style.width=(a*10)+'%';
+    document.getElementById('fT').style.width=(t*10)+'%';
+    document.getElementById('vP').textContent=fmt(p);
+    document.getElementById('vA').textContent=fmt(a);
+    document.getElementById('vT').textContent=fmt(t);
+    document.getElementById('scnDesc').textContent=cur.desc;
+    // rings scale with score
+    document.getElementById('rP').setAttribute('r', 132);
+    document.getElementById('rA').setAttribute('r', 132);
+    document.getElementById('rT').setAttribute('r', 132);
+    var nx = (p+a+t)/3;
+    document.getElementById('nxBig').textContent = fmt(nx);
+    var min = Math.min(p,a,t);
+    var verdict, col;
+    if (min>=6 && nx>=6.5){ verdict='Inside the Nexus, all three forces hold.'; col='var(--persevere-l)'; }
+    else if (min>=4){ verdict='Approaching, one force is lagging the others.'; col='var(--adapt-l)'; }
+    else { verdict='Outside, a single force is carrying the rest.'; col='var(--transform-l)'; }
+    var v=document.getElementById('nxVerdict'); v.textContent=verdict; v.style.color=col;
+  }
+  render();
+})();
+</script>
+</body>
+</html>

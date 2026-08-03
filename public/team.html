@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Team — Resilience Nexus</title>
+<meta name="description" content="Meet the Resilience Nexus team: Dr Kelly Culver, Peter Jones and Simon Greenman.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Inter:wght@400;500;600;700&family=Open+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site.css">
+<style>
+  .thero { padding:128px 0 72px; }
+  .thero .display { color:#fff; max-width:16ch; }
+  @media (max-width:720px){ .thero{ padding:96px 0 56px; } }
+  .people { display:grid; grid-template-columns:repeat(3,1fr); gap:24px; }
+  @media (max-width:980px){ .people{ grid-template-columns:repeat(2,1fr); max-width:640px;margin:0 auto; } }
+  @media (max-width:560px){ .people{ grid-template-columns:1fr; } }
+  .person .photo { aspect-ratio:1/1; border-radius:14px; overflow:hidden; border:1px solid var(--line); position:relative;
+    background:linear-gradient(160deg,#e9e5da,#f4f1ea); display:flex; align-items:flex-end; justify-content:center; }
+  .person .photo .initials { font-family:'Newsreader',serif; font-size:4rem; color:var(--ink-3); opacity:.5; position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); }
+  .person .photo .ph-note { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.1em; text-transform:uppercase; color:var(--ink-3); padding:10px; opacity:.7; }
+  .person .photo img { position:absolute; inset:0; width:100%; height:100%; object-fit:cover; object-position:center top; }
+  .person .nm { font-family:'Newsreader',serif; font-size:1.5rem; margin:20px 0 4px; }
+  .person .rl { font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--cobalt); }
+  .person p { color:var(--ink-2); font-size:14.5px; line-height:1.6; margin:14px 0 16px; }
+  .person .links { display:flex; gap:14px; font-size:13px; }
+  .person .links a { color:var(--ink-3); text-decoration:none; font-weight:600; }
+  .person .links a:hover { color:var(--cobalt); }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="rnGrad" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#3053E9"/><stop offset=".55" stop-color="#3793F1"/><stop offset="1" stop-color="#3CD1F5"/></linearGradient>
+  <symbol id="rn-mark" viewBox="0 0 64 64"><path d="M18 13.6c0-3.5 3.8-5.7 6.8-3.9l29.7 17.9c2.9 1.7 2.9 5.9 0 7.6L24.8 53.1c-3 1.8-6.8-.4-6.8-3.9V13.6Z" fill="url(#rnGrad)"/><path d="M18 13.6c0-3.5 3.8-5.7 6.8-3.9l29.7 17.9c.5.3.9.7 1.2 1.1L18 31.3V13.6Z" fill="#fff" fill-opacity=".22"/></symbol>
+</defs></svg>
+
+<header class="site-header">
+  <div class="wrap-wide nav">
+    <a class="logo" href="index.html"><img src="assets/rn-logo-blue.png" alt="Resilience Nexus" class="logo-img"></a>
+    <nav class="nav-links" aria-label="Primary">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link" href="services.html">Services</a>
+      <a class="nav-link" href="about.html">Approach</a>
+      <a class="nav-link active" href="team.html">Team</a>
+      <a class="nav-link" href="partners.html">Partners</a>
+      <a class="nav-link" href="insights.html">Insights</a>
+      
+    </nav>
+    <button class="nav-toggle" data-nav-toggle aria-label="Menu"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0b1326" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</header>
+
+<section class="band-dark thero">
+  <div class="glow cobalt" style="width:540px;height:540px;top:-180px;right:-140px;"></div>
+  <div class="wrap-wide" style="position:relative;z-index:2;">
+    <p class="eyebrow">Meet the team</p>
+    <h1 class="display">Practitioners, economists, engineers.</h1>
+    <p class="lede measure-wide" style="margin-top:22px;">A small team pairing decades of resilience practice with economic intelligence and the engineering to turn a proprietary methodology and framework into a global resilience advisory practice and resilience intelligence suite.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap people" data-stagger>
+    <div class="person reveal">
+      <div class="photo"><img src="assets/kelly-culver.jpeg" alt="Dr Kelly Culver"></div>
+      <div class="nm">Dr Kelly Culver</div>
+      <div class="rl">Co-Founder &amp; Director</div>
+      <p>Kelly brings three decades of global experience advising leaders, boards and governments through economic transformation, strategic resilience and complex change. She shapes the thinking behind Resilience Nexus and the leadership judgement at the heart of its work.</p>
+      <div class="links"><a href="https://www.linkedin.com/in/kelly-culver/" target="_blank" rel="noopener">LinkedIn ↗</a></div>
+    </div>
+    <div class="person reveal">
+      <div class="photo"><img src="assets/peter-jones.jpeg" alt="Peter Jones"></div>
+      <div class="nm">Peter Jones</div>
+      <div class="rl">Co-Founder &amp; Director</div>
+      <p>Peter brings thirty-five years as an entrepreneur, marketer and digital technology expert, building agencies, launching disruptive start-ups and advising global brands. He channels this network and instinct for opportunity into new ventures and partnerships for Resilience Nexus and its clients.</p>
+      <div class="links"><a href="https://www.linkedin.com/in/prgjones/" target="_blank" rel="noopener">LinkedIn ↗</a></div>
+    </div>
+    <div class="person reveal">
+      <div class="photo"><img src="assets/chris-bruce.jpeg" alt="Chris Bruce"></div>
+      <div class="nm">Chris Bruce</div>
+      <div class="rl">Advisor, Technology &amp; Family Offices</div>
+      <p>Chris brings thirty years leading growth businesses in wireless, internet and cloud, including CEO of BT Openzone Wi-Fi and senior roles across BT and Ericsson worldwide. He advises family offices on technology innovation, deeply embedded in the Cambridge tech and investment ecosystem.</p>
+      <div class="links"><a href="https://www.linkedin.com/in/chrisbruce682/" target="_blank" rel="noopener">LinkedIn ↗</a></div>
+    </div>
+    <div class="person reveal">
+      <div class="photo"><img src="assets/simon-greenman.jpeg" alt="Simon Greenman"></div>
+      <div class="nm">Simon Greenman</div>
+      <div class="rl">Advisor, AI &amp; Product</div>
+      <p>Simon has built AI-powered products since 1996, when he co-founded MapQuest, the internet's first mass-market navigation product. Over 25 years in digital transformation across the US and Europe, he holds a BA in Computing &amp; AI from Sussex and an MBA from Harvard Business School.</p>
+      <div class="links"><a href="https://www.linkedin.com/in/simongreenman/" target="_blank" rel="noopener">LinkedIn ↗</a></div>
+    </div>
+    <div class="person reveal">
+      <div class="photo"><img src="assets/thomas-egeman.jpeg" alt="Thomas Egeman"></div>
+      <div class="nm">Thomas Egeman</div>
+      <div class="rl">Advisor, Strategy &amp; Investment</div>
+      <p>Thomas brings thirty years advising boards and executives on strategy, asset management and corporate banking, including senior leadership roles at global consultancies and a major bank. He invests in early-stage and growth businesses, deeply embedded in Ivy League angel networks and non-executive director circles across the US and Europe.</p>
+      <div class="links"><a href="https://www.linkedin.com/in/thomasegeman/" target="_blank" rel="noopener">LinkedIn ↗</a></div>
+    </div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="wrap-wide">
+    <div class="foot-grid">
+      <div class="foot-col"><a class="logo on-dark" href="index.html" style="--ink:#fff;"><img src="assets/rn-logo-white.webp" alt="Resilience Nexus" class="logo-img" style="height:42px;"></a><p class="foot-addr">66 Paul Street<br>London, England<br>EC2A 4NA</p></div>
+      <div class="foot-col"><h4>Explore</h4><a href="index.html">Home</a><a href="services.html">Services</a><a href="about.html">Approach</a><a href="insights.html">Insights</a></div>
+      <div class="foot-col"><h4>Company</h4><a href="team.html">Team</a><a href="partners.html">Partners</a><a href="https://www.linkedin.com/company/resilience-nexus" target="_blank" rel="noopener">LinkedIn ↗</a></div>
+      <div class="foot-col"><h4>Get in touch</h4><a href="contact.html">Get in touch</a></div>
+    </div>
+    <div class="foot-bottom"><span>© <span data-year>2026</span> The Resilience Trinity Limited, trading as "Resilience Nexus". All rights reserved.</span><span><a href="policies.html">Privacy</a> · <a href="policies.html">Terms &amp; Conditions</a> · <a href="policies.html">Policies</a></span></div>
+  </div>
+</footer>
+<script src="site.js"></script>
+</body>
+</html>

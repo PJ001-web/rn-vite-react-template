@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Supply Chain Impact Modelling — Resilience Nexus</title>
+<meta name="description" content="Supply Chain Impact Modelling maps how a disruption propagates through a supply network, surfacing hidden exposure, single points of failure and concentration risk.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Inter:wght@400;500;600;700&family=Open+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site.css">
+<style>
+  .dhero { padding:124px 0 64px; }
+  .dhero .h-xl { color:#fff; max-width:18ch; }
+  @media (max-width:720px){ .dhero{ padding:96px 0 48px; } }
+  .crumb { font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--d-mute); margin-bottom:22px; }
+  .crumb a { color:var(--cyan); text-decoration:none; }
+  .two { display:grid; grid-template-columns:0.85fr 1.15fr; gap:60px; align-items:start; }
+  @media (max-width:900px){ .two{ grid-template-columns:1fr; gap:30px; } }
+  .feats { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+  @media (max-width:760px){ .feats{ grid-template-columns:1fr; } }
+  .feats h3 { font-size:1.15rem; margin:0 0 8px; }
+  .feats p { color:var(--ink-2); font-size:14px; line-height:1.55; margin:0; }
+  .feats .k { font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.12em; color:var(--cobalt); margin-bottom:12px; }
+  .ph-note { padding:18px 22px; border-radius:12px; border:1px dashed rgba(11,19,38,.18); background:var(--paper-3); color:var(--ink-3); font-size:13.5px; line-height:1.55; }
+  .ph-note b { color:var(--ink-2); }
+  /* simple tier diagram */
+  .tiers { display:grid; gap:14px; }
+  .tier { display:flex; align-items:center; gap:14px; }
+  .tier .lab { font-family:'IBM Plex Mono',monospace; font-size:10px; letter-spacing:.14em; text-transform:uppercase; color:var(--d-mute); width:70px; flex-shrink:0; text-align:right; }
+  .tier .nodes { display:flex; gap:8px; flex:1; }
+  .node { height:30px; flex:1; border-radius:7px; border:1px solid var(--d-line); background:rgba(60,165,245,.12); }
+  .node.hot { background:rgba(251,113,133,.22); border-color:rgba(251,113,133,.5); }
+  .node.warm { background:rgba(251,191,36,.18); border-color:rgba(251,191,36,.45); }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="rnGrad" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#3053E9"/><stop offset=".55" stop-color="#3793F1"/><stop offset="1" stop-color="#3CD1F5"/></linearGradient>
+  <symbol id="rn-mark" viewBox="0 0 64 64"><path d="M18 13.6c0-3.5 3.8-5.7 6.8-3.9l29.7 17.9c2.9 1.7 2.9 5.9 0 7.6L24.8 53.1c-3 1.8-6.8-.4-6.8-3.9V13.6Z" fill="url(#rnGrad)"/><path d="M18 13.6c0-3.5 3.8-5.7 6.8-3.9l29.7 17.9c.5.3.9.7 1.2 1.1L18 31.3V13.6Z" fill="#fff" fill-opacity=".22"/></symbol>
+</defs></svg>
+
+<header class="site-header">
+  <div class="wrap-wide nav">
+    <a class="logo" href="index.html"><img src="assets/rn-logo-blue.png" alt="Resilience Nexus" class="logo-img"></a>
+    <nav class="nav-links" aria-label="Primary">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link active" href="services.html">Services</a>
+      <a class="nav-link" href="about.html">Approach</a>
+      <a class="nav-link" href="team.html">Team</a>
+      <a class="nav-link" href="partners.html">Partners</a>
+      <a class="nav-link" href="insights.html">Insights</a>
+      
+    </nav>
+    <button class="nav-toggle" data-nav-toggle aria-label="Menu"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0b1326" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</header>
+
+<section class="band-dark dhero">
+  <div class="glow cyan" style="width:560px;height:560px;top:-180px;right:-140px;opacity:.45;"></div>
+  <div class="wrap-wide" style="position:relative;z-index:2;">
+    <p class="crumb"><a href="services.html">Services</a> / Supply Chain Impact Modelling</p>
+    <span class="tag">Service</span>
+    <h1 class="h-xl" style="margin-top:20px;">Trace the shock all the way downstream.</h1>
+    <p class="lede measure-wide" style="margin-top:20px;">A disruption rarely stops where it starts. Supply Chain Impact Modelling maps how a shock propagates through your network, surfacing hidden exposure, single points of failure and concentration risk several tiers deep.</p>
+    <div style="margin-top:30px;display:flex;gap:14px;flex-wrap:wrap;">
+      <a class="btn btn-primary" href="contact.html">Request a demo</a>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE DEMO -->
+<section class="section band-alt" id="demo">
+  <div class="wrap-wide">
+    <div class="reveal" style="margin-bottom:24px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;">
+        <div>
+          <p class="eyebrow">Live demo</p>
+          <h2 class="h-lg">Global economic cascade, interactive model.</h2>
+        </div>
+      </div>
+      <p class="muted" style="font-size:14.5px;margin-top:12px;max-width:64ch;">Click any node to inspect a sector, or hit <strong>Run Scenario</strong> to trace how a biosecurity shock propagates across industries, labour markets and financial systems, wave by wave, over time.</p>
+    </div>
+    <div class="reveal" style="border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:#060b14;box-shadow:0 30px 60px -34px rgba(11,19,38,.45);">
+      <img src="assets/supply-chain-browser.png" alt="Supply Chain Impact Modelling: global economic cascade" style="width:100%;height:auto;display:block;">
+    </div>
+    <p class="muted" style="font-size:12px;margin-top:14px;">Illustrative figures compiled from public post-mortems (IATA, IMF, World Bank, FAO, OECD, Lloyd's). For demonstration only.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap two">
+    <div class="reveal">
+      <p class="eyebrow">What it is</p>
+      <h2 class="h-lg">See the dependency you forgot you had.</h2>
+      <p class="lede" style="margin-top:16px;">Most organisations know their tier-one suppliers and almost nothing beyond. We model the network downstream, and upstream, to find where many of your critical inputs quietly converge on a single source, region or chokepoint.</p>
+      <p style="color:var(--ink-2);">The output ties back to the Resilience Index: concentration and propagation risk become inputs to the Context and Convergence dimensions, so supply-chain fragility shows up in the same score the board already tracks.</p>
+    </div>
+    <div class="reveal">
+      <div class="card" style="padding:30px;background:#0a1226;border-color:var(--d-line);">
+        <p class="eyebrow" style="margin-bottom:18px;color:var(--cyan);">Propagation map · illustrative</p>
+        <div class="tiers">
+          <div class="tier"><span class="lab">You</span><div class="nodes"><div class="node hot"></div></div></div>
+          <div class="tier"><span class="lab">Tier 1</span><div class="nodes"><div class="node"></div><div class="node warm"></div><div class="node"></div></div></div>
+          <div class="tier"><span class="lab">Tier 2</span><div class="nodes"><div class="node"></div><div class="node"></div><div class="node hot"></div><div class="node"></div><div class="node"></div></div></div>
+          <div class="tier"><span class="lab">Tier 3+</span><div class="nodes"><div class="node hot"></div><div class="node"></div><div class="node"></div><div class="node"></div><div class="node"></div><div class="node"></div></div></div>
+        </div>
+        <p class="muted" style="font-size:12px;margin-top:18px;color:var(--d-mute);"><span style="color:var(--transform-l);">●</span> concentration / chokepoint &nbsp;&nbsp; <span style="color:var(--adapt-l);">●</span> elevated exposure</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band-alt section">
+  <div class="wrap">
+    <div class="reveal" style="max-width:680px;margin-bottom:36px;">
+      <p class="eyebrow">What you get</p>
+      <h2 class="h-xl">Exposure, quantified.</h2>
+    </div>
+    <div class="feats reveal" data-stagger>
+      <div class="card"><div class="k">Multi-tier mapping</div><h3>Beyond tier one</h3><p>Trace dependencies several tiers deep to find the suppliers behind your suppliers.</p></div>
+      <div class="card"><div class="k">Concentration risk</div><h3>Hidden chokepoints</h3><p>Reveal where many critical inputs converge on a single source, region or route.</p></div>
+      <div class="card"><div class="k">Impact propagation</div><h3>Knock-on effects</h3><p>Model how one failure cascades, and estimate the time and cost to your operation.</p></div>
+    </div>
+    <p class="ph-note reveal" style="margin-top:28px;max-width:62ch;"><b>Note.</b> The interactive model above is a public-data illustration. Bespoke client modelling, your own network, tiers and data integration, is scoped per engagement.</p>
+  </div>
+</section>
+
+<section class="band-dark section cta-band" style="text-align:center;position:relative;overflow:hidden;background:linear-gradient(180deg,#0a142e,#070d20);">
+  <div class="wrap" style="position:relative;z-index:2;">
+    <h2 class="display reveal" style="max-width:18ch;margin:0 auto;color:#fff;font-size:clamp(1.45rem,3.2vw,2.8rem);">Find the weak link first.</h2>
+    <div class="reveal" style="margin-top:32px;"><a class="btn btn-primary" href="contact.html">Get in touch <span class="arw">→</span></a></div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="wrap-wide">
+    <div class="foot-grid">
+      <div class="foot-col"><a class="logo on-dark" href="index.html" style="--ink:#fff;"><img src="assets/rn-logo-white.webp" alt="Resilience Nexus" class="logo-img" style="height:42px;"></a><p class="foot-addr">66 Paul Street<br>London, England<br>EC2A 4NA</p></div>
+      <div class="foot-col"><h4>Services</h4><a href="resilience-index.html">Resilience Index</a><a href="risk-scenario-modelling.html">Risk Scenario Modelling</a><a href="bioshield-briefing.html">BioShield Briefing</a><a href="supply-chain-modelling.html">Supply Chain Modelling</a></div>
+      <div class="foot-col"><h4>Company</h4><a href="about.html">Approach</a><a href="team.html">Team</a><a href="partners.html">Partners</a><a href="insights.html">Insights</a></div>
+      <div class="foot-col"><h4>Get in touch</h4><a href="contact.html">Get in touch</a><a href="https://www.linkedin.com/company/resilience-nexus" target="_blank" rel="noopener">LinkedIn ↗</a></div>
+    </div>
+    <div class="foot-bottom"><span>© <span data-year>2026</span> The Resilience Trinity Limited, trading as "Resilience Nexus". All rights reserved.</span><span><a href="policies.html">Privacy</a> · <a href="policies.html">Terms &amp; Conditions</a> · <a href="policies.html">Policies</a></span></div>
+  </div>
+</footer>
+<script src="site.js"></script>
+</body>
+</html>

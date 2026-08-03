@@ -1,0 +1,151 @@
+<!doctype html>
+<html lang="en-GB">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Risk Scenario Modelling — Resilience Nexus</title>
+<meta name="description" content="Risk Scenario Modelling stress-tests a profile against specific shocks and reads the before/after movement across Persevere, Adapt and Transform.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Newsreader:ital,opsz,wght@0,6..72,400;0,6..72,500;0,6..72,600;1,6..72,400;1,6..72,500&family=Inter:wght@400;500;600;700&family=Open+Sans:wght@400;500;600;700&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="site.css">
+<style>
+  .dhero { padding:124px 0 64px; }
+  .dhero .h-xl { color:#fff; max-width:18ch; }
+  @media (max-width:720px){ .dhero{ padding:96px 0 48px; } }
+  .crumb { font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.14em; text-transform:uppercase; color:var(--d-mute); margin-bottom:22px; }
+  .crumb a { color:var(--cyan); text-decoration:none; }
+  .two { display:grid; grid-template-columns:0.85fr 1.15fr; gap:60px; align-items:start; }
+  @media (max-width:900px){ .two{ grid-template-columns:1fr; gap:30px; } }
+  .feats { display:grid; grid-template-columns:repeat(3,1fr); gap:18px; }
+  @media (max-width:760px){ .feats{ grid-template-columns:1fr; } }
+  .feats h3 { font-size:1.15rem; margin:0 0 8px; }
+  .feats p { color:var(--ink-2); font-size:14px; line-height:1.55; margin:0; }
+  .feats .k { font-family:'IBM Plex Mono',monospace; font-size:11px; letter-spacing:.12em; color:var(--cobalt); margin-bottom:12px; }
+  .ph-note { padding:18px 22px; border-radius:12px; border:1px dashed var(--border,rgba(11,19,38,.18)); background:var(--paper-3); color:var(--ink-3); font-size:13.5px; line-height:1.55; }
+  .ph-note b { color:var(--ink-2); }
+  .scnlist { display:flex; flex-wrap:wrap; gap:10px; }
+  .scnlist .tag { background:var(--paper-2); }
+  .steps { display:grid; grid-template-columns:repeat(4,1fr); gap:18px; }
+  @media (max-width:900px){ .steps{ grid-template-columns:1fr 1fr; } }
+  @media (max-width:520px){ .steps{ grid-template-columns:1fr; } }
+  .step .no { font-family:'Newsreader',serif; font-size:2.2rem; color:var(--cobalt); line-height:1; }
+  .step h3 { font-size:1.15rem; margin:12px 0 8px; }
+  .step p { color:var(--ink-2); font-size:14px; line-height:1.5; margin:0; }
+</style>
+</head>
+<body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true"><defs>
+  <linearGradient id="rnGrad" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#3053E9"/><stop offset=".55" stop-color="#3793F1"/><stop offset="1" stop-color="#3CD1F5"/></linearGradient>
+  <symbol id="rn-mark" viewBox="0 0 64 64"><path d="M18 13.6c0-3.5 3.8-5.7 6.8-3.9l29.7 17.9c2.9 1.7 2.9 5.9 0 7.6L24.8 53.1c-3 1.8-6.8-.4-6.8-3.9V13.6Z" fill="url(#rnGrad)"/><path d="M18 13.6c0-3.5 3.8-5.7 6.8-3.9l29.7 17.9c.5.3.9.7 1.2 1.1L18 31.3V13.6Z" fill="#fff" fill-opacity=".22"/></symbol>
+</defs></svg>
+
+<header class="site-header">
+  <div class="wrap-wide nav">
+    <a class="logo" href="index.html"><img src="assets/rn-logo-blue.png" alt="Resilience Nexus" class="logo-img"></a>
+    <nav class="nav-links" aria-label="Primary">
+      <a class="nav-link" href="index.html">Home</a>
+      <a class="nav-link active" href="services.html">Services</a>
+      <a class="nav-link" href="about.html">Approach</a>
+      <a class="nav-link" href="team.html">Team</a>
+      <a class="nav-link" href="partners.html">Partners</a>
+      <a class="nav-link" href="insights.html">Insights</a>
+      
+    </nav>
+    <button class="nav-toggle" data-nav-toggle aria-label="Menu"><svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0b1326" stroke-width="2"><path d="M3 6h18M3 12h18M3 18h18"/></svg></button>
+  </div>
+</header>
+
+<section class="band-dark dhero">
+  <div class="glow cobalt" style="width:560px;height:560px;top:-180px;left:-140px;"></div>
+  <div class="wrap-wide" style="position:relative;z-index:2;">
+    <p class="crumb"><a href="services.html">Services</a> / Risk Scenario Modelling</p>
+    <span class="tag">Service</span>
+    <h1 class="h-xl" style="margin-top:20px;">Stress-test the future before it arrives.</h1>
+    <p class="lede measure-wide" style="margin-top:20px;">Risk Scenario Modelling runs a profile against specific shocks and shows how its resilience moves, so you can see which of the three forces breaks first, and where a single strategy is quietly holding everything up.</p>
+    <div style="margin-top:30px;display:flex;gap:14px;flex-wrap:wrap;">
+      <a class="btn btn-primary" href="contact.html">Request a demo</a>
+    </div>
+  </div>
+</section>
+
+<!-- LIVE DEMO -->
+<section class="section band-alt" id="demo">
+  <div class="wrap-wide">
+    <div class="reveal" style="display:flex;justify-content:space-between;align-items:flex-end;gap:24px;flex-wrap:wrap;margin-bottom:24px;">
+      <div>
+        <p class="eyebrow">Live demo</p>
+        <h2 class="h-lg">Coca-Cola supply impact, interactive model.</h2>
+      </div>
+    </div>
+    <div class="reveal" style="border:1px solid var(--line);border-radius:var(--r);overflow:hidden;background:#0a1226;box-shadow:0 30px 60px -34px rgba(11,19,38,.4);">
+      <img src="assets/risk-scenario-browser.png" alt="Risk Scenario Modelling: Coca-Cola supply impact dashboard" style="width:100%;height:auto;display:block;">
+    </div>
+    <p class="muted reveal" style="font-size:12.5px;margin-top:14px;">Illustrative model, shown here as a static preview.</p>
+  </div>
+</section>
+
+<section class="section">
+  <div class="wrap two">
+    <div class="reveal">
+      <p class="eyebrow">What it is</p>
+      <h2 class="h-lg">Before / after, on one scale.</h2>
+      <p class="lede" style="margin-top:16px;">A scenario is a defined shock applied to a profile. We model how it propagates through the six dimensions and read the resulting movement in the Persevere, Adapt and Transform scores, the before, the after, and the gap it opens.</p>
+      <p style="color:var(--ink-2);">Because every scenario runs on the same methodology as the Resilience Index, the results are directly comparable: you can rank shocks by impact, and rank profiles by how well they hold up.</p>
+    </div>
+    <div class="reveal">
+      <div class="card" style="padding:30px;">
+        <p class="eyebrow" style="margin-bottom:16px;">Example scenario library</p>
+        <div class="scnlist">
+          <span class="tag">H5N1 spillover</span>
+          <span class="tag">Lab-leak event</span>
+          <span class="tag">AMR escalation</span>
+          <span class="tag">API supply shock</span>
+          <span class="tag">Recall cascade</span>
+          <span class="tag">+ bespoke shocks</span>
+        </div>
+        <hr class="rule" style="margin:24px 0;">
+        <p class="ph-note"><b>Placeholder.</b> The full scenario catalogue, the modelling method and worked before/after examples are still being finalised for this page, content to be supplied by the Resilience Nexus team.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<section class="band-alt section">
+  <div class="wrap">
+    <div class="reveal" style="max-width:680px;margin-bottom:36px;">
+      <p class="eyebrow">How it works</p>
+      <h2 class="h-xl">From shock to strategy.</h2>
+    </div>
+    <div class="steps reveal" data-stagger>
+      <div class="card step reveal"><div class="no">01</div><h3>Define the shock</h3><p>Pick from the library or specify a bespoke scenario relevant to your profile.</p></div>
+      <div class="card step reveal"><div class="no">02</div><h3>Propagate</h3><p>The shock flows through the six dimensions and updates the resilience score.</p></div>
+      <div class="card step reveal"><div class="no">03</div><h3>Read the movement</h3><p>See the before/after across the three forces and the new Nexus position.</p></div>
+      <div class="card step reveal"><div class="no">04</div><h3>Act</h3><p>Translate the gap into the priority move that restores balance.</p></div>
+    </div>
+    <p class="ph-note reveal" style="margin-top:28px;max-width:60ch;"><b>Placeholder.</b> Detailed methodology, assumptions and confidence handling to be added.</p>
+  </div>
+</section>
+
+<section class="band-dark section cta-band" style="text-align:center;position:relative;overflow:hidden;">
+  <div class="glow cobalt" style="width:520px;height:520px;top:-180px;left:50%;transform:translateX(-50%);opacity:.4;"></div>
+  <div class="wrap" style="position:relative;z-index:2;">
+    <h2 class="display reveal" style="max-width:18ch;margin:0 auto;color:#fff;font-size:clamp(1.45rem,3.2vw,2.8rem);">Model your worst scenario.</h2>
+    <div class="reveal" style="margin-top:32px;"><a class="btn btn-primary" href="contact.html">Get in touch <span class="arw">→</span></a></div>
+  </div>
+</section>
+
+<footer class="site-footer">
+  <div class="wrap-wide">
+    <div class="foot-grid">
+      <div class="foot-col"><a class="logo on-dark" href="index.html" style="--ink:#fff;"><img src="assets/rn-logo-white.webp" alt="Resilience Nexus" class="logo-img" style="height:42px;"></a><p class="foot-addr">66 Paul Street<br>London, England<br>EC2A 4NA</p></div>
+      <div class="foot-col"><h4>Services</h4><a href="resilience-index.html">Resilience Index</a><a href="risk-scenario-modelling.html">Risk Scenario Modelling</a><a href="bioshield-briefing.html">BioShield Briefing</a><a href="supply-chain-modelling.html">Supply Chain Modelling</a></div>
+      <div class="foot-col"><h4>Company</h4><a href="about.html">Approach</a><a href="team.html">Team</a><a href="partners.html">Partners</a><a href="insights.html">Insights</a></div>
+      <div class="foot-col"><h4>Get in touch</h4><a href="contact.html">Get in touch</a><a href="https://www.linkedin.com/company/resilience-nexus" target="_blank" rel="noopener">LinkedIn ↗</a></div>
+    </div>
+    <div class="foot-bottom"><span>© <span data-year>2026</span> The Resilience Trinity Limited, trading as "Resilience Nexus". All rights reserved.</span><span><a href="policies.html">Privacy</a> · <a href="policies.html">Terms &amp; Conditions</a> · <a href="policies.html">Policies</a></span></div>
+  </div>
+</footer>
+<script src="site.js"></script>
+</body>
+</html>

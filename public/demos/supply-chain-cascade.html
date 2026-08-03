@@ -1,0 +1,1927 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Biosecurity Economic Cascade · Global Impact Graph</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/d3/7.8.5/d3.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600&family=Space+Mono:wght@400;700&display=swap');
+
+*{box-sizing:border-box;margin:0;padding:0}
+
+:root{
+ --bg:#060b14;
+ --surface:rgba(255,255,255,0.03);
+ --border:rgba(255,255,255,0.07);
+ --text-dim:#3d5470;
+ --text-mid:#7a9ab8;
+ --text-hi:#c8ddef;
+ --red:#ff4040;
+ --amber:#ffaa00;
+ --blue:#4488ff;
+ --mono:'Space Mono',monospace;
+ --sans:'Space Grotesk',sans-serif;
+}
+
+body{background:var(--bg);color:var(--text-mid);font-family:var(--sans);overflow:hidden;height:100vh;width:100vw;font-size:13px}
+
+/* ── HEADER ── */
+#hdr{
+ position:absolute;top:0;left:0;right:0;z-index:20;
+ padding:12px 18px;
+ display:flex;align-items:center;gap:16px;
+ background:linear-gradient(180deg,rgba(6,11,20,1) 60%,transparent);
+ border-bottom:1px solid var(--border);
+}
+#hdr .logo{font-family:var(--mono);font-size:11px;font-weight:700;color:var(--red);letter-spacing:.15em;text-transform:uppercase}
+#hdr .divider{width:1px;height:16px;background:var(--border)}
+#hdr .sub{font-size:11px;color:var(--text-dim);letter-spacing:.05em;font-family:var(--mono)}
+#hdr .status{margin-left:auto;font-family:var(--mono);font-size:10px;color:var(--amber);letter-spacing:.1em;opacity:.85}
+#hdr .status.idle{color:var(--text-dim)}
+
+/* ── SVG ── */
+#canvas{width:100vw;height:100vh}
+svg{width:100%;height:100%}
+
+/* links */
+.link{stroke-opacity:.25;transition:stroke-opacity .25s,stroke-width .25s}
+.link.lit{stroke-opacity:.85;stroke-width:2.5!important}
+.link.dim{stroke-opacity:.03}
+.link.cascade{stroke-opacity:.9;stroke-width:2.5!important;stroke-dasharray:6 3;animation:flow 1.1s linear infinite}
+@keyframes flow{to{stroke-dashoffset:-18}}
+
+/* nodes */
+.node{cursor:pointer}
+.node circle{transition:r .18s,fill .3s,stroke .3s;stroke-width:1.8}
+.node.affected circle{animation:throb 1.3s ease-in-out infinite}
+@keyframes throb{0%,100%{stroke-opacity:1}50%{stroke-opacity:.3}}
+.node text{font-family:var(--sans);font-size:10px;fill:var(--text-dim);pointer-events:none;text-anchor:middle;font-weight:400}
+
+/* ── RIGHT PANEL ── */
+#panel{
+ position:absolute;top:50px;right:16px;z-index:20;
+ width:270px;
+ background:rgba(6,11,20,.96);
+ border:1px solid var(--border);
+}
+#panel-header{
+ display:flex;align-items:center;justify-content:space-between;
+ padding:10px 14px;cursor:pointer;user-select:none;
+ border-bottom:1px solid var(--border);
+}
+#panel-header:hover{background:rgba(255,255,255,.03)}
+#panel-header span{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim)}
+#panel-toggle{font-family:var(--mono);font-size:10px;color:var(--text-dim);transition:transform .25s;display:inline-block}
+#panel-body{padding:14px;transition:all .25s}
+#panel-body.collapsed{display:none}
+#panel-idle{font-size:11.5px;color:var(--text-dim);line-height:1.65}
+#panel-idle strong{color:var(--text-mid)}
+#panel-node{display:none}
+#panel-node h2{font-family:var(--mono);font-size:12px;font-weight:700;color:var(--text-hi);margin-bottom:3px;letter-spacing:.03em}
+.sector-tag{font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;text-transform:uppercase;margin-bottom:10px}
+#panel-node p{font-size:11.5px;line-height:1.65;color:var(--text-dim);margin-bottom:12px}
+.metric-row{display:flex;align-items:center;gap:8px;margin-bottom:7px;font-size:10px;font-family:var(--mono);color:var(--text-dim)}
+.metric-row span:first-child{width:82px;flex-shrink:0}
+.bar-bg{flex:1;height:3px;background:rgba(255,255,255,.06)}
+.bar-fill{height:100%;background:var(--red);opacity:.8;transition:width .5s}
+.bar-fill.blue{background:var(--blue)}
+.bar-fill.amber{background:var(--amber)}
+.downstream{margin-top:12px;padding-top:12px;border-top:1px solid var(--border);font-size:10.5px;color:var(--text-dim);font-family:var(--mono);line-height:1.8}
+.downstream .label{font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);opacity:.6;margin-bottom:4px}
+.downstream .hit{color:var(--amber);display:inline-block;margin-right:6px;margin-bottom:2px}
+
+/* ── BOTTOM LEFT: legend ── */
+#legend{
+ position:absolute;bottom:16px;left:16px;z-index:20;
+ background:rgba(6,11,20,.92);border:1px solid var(--border);
+ min-width:200px;
+}
+#legend-header{
+ display:flex;align-items:center;justify-content:space-between;
+ padding:10px 14px;cursor:pointer;user-select:none;
+ border-bottom:1px solid transparent;transition:border-color .2s;
+}
+#legend-header:hover{background:rgba(255,255,255,.03)}
+#legend-header h3{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin:0}
+#legend-toggle{font-family:var(--mono);font-size:10px;color:var(--text-dim);transition:transform .25s;display:inline-block}
+#legend-body{padding:10px 14px 12px;transition:all .25s}
+#legend-body.collapsed{display:none}
+#legend-header.open{border-bottom-color:var(--border)}
+.li{display:flex;align-items:center;gap:8px;margin-bottom:6px;font-size:10.5px;color:var(--text-mid)}
+.ldot{width:10px;height:10px;border-radius:50%;border:2px solid transparent;flex-shrink:0}
+.lline{width:24px;height:0;border-top:2px solid #8aa0be;opacity:.35}
+.lline.cascade{border-top:2px dashed var(--red);opacity:.8}
+#legend .sep{margin:8px 0 8px;border-top:1px solid var(--border)}
+
+/* ── BOTTOM RIGHT: controls ── */
+#controls{
+ position:absolute;bottom:16px;right:16px;z-index:20;
+ display:flex;gap:8px;align-items:center
+}
+.btn{
+ background:rgba(255,255,255,.04);border:1px solid var(--border);
+ color:var(--text-mid);font-family:var(--mono);font-size:9.5px;
+ letter-spacing:.1em;text-transform:uppercase;padding:8px 14px;
+ cursor:pointer;transition:all .2s
+}
+.btn:hover{background:rgba(255,64,64,.1);border-color:rgba(255,64,64,.35);color:#ff8888}
+.btn.active{background:rgba(255,64,64,.14);border-color:rgba(255,64,64,.5);color:var(--red)}
+.btn.scenario-btn{font-size:8.5px;padding:6px 10px}
+
+/* ── SCENARIO PICKER ── */
+#scenario-tray{
+ position:absolute;bottom:52px;right:16px;z-index:20;
+ background:rgba(6,11,20,.96);border:1px solid var(--border);
+ padding:12px;width:340px;display:none;
+ max-height:70vh;overflow-y:auto;
+}
+#scenario-tray::-webkit-scrollbar{width:4px}
+#scenario-tray::-webkit-scrollbar-track{background:transparent}
+#scenario-tray::-webkit-scrollbar-thumb{background:rgba(255,255,255,.1);border-radius:2px}
+#scenario-tray h3{font-family:var(--mono);font-size:9px;letter-spacing:.12em;text-transform:uppercase;color:var(--text-dim);margin-bottom:10px;position:sticky;top:0;background:rgba(6,11,20,.96);padding-bottom:6px}
+.sc-item{
+ padding:9px 10px;margin-bottom:6px;border:1px solid var(--border);cursor:pointer;
+ transition:all .2s;font-size:11px;line-height:1.5
+}
+.sc-item:hover{border-color:rgba(255,64,64,.4);background:rgba(255,64,64,.06)}
+.sc-item .sc-title{font-family:var(--mono);font-size:10px;color:var(--text-hi);margin-bottom:2px}
+.sc-item .sc-sub{font-size:10px;color:var(--text-dim)}
+.sc-item .sc-tag{font-family:var(--mono);font-size:8.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--amber);opacity:.7;margin-bottom:3px}
+
+/* ── TEMPORAL WAVE COLOURS ── */
+/* Each wave = a time horizon; colour encodes elapsed time from T=0 */
+.node.t0 circle{stroke:#ff4040!important}          /* Origin — T=0 */
+.node.t1 circle{stroke:#ff6820!important}          /* W1 — hours */
+.node.t2 circle{stroke:#ffaa00!important}          /* W2 — days */
+.node.t3 circle{stroke:#aacc00!important}          /* W3 — weeks */
+.node.t4 circle{stroke:#22bbaa!important}          /* W4 — months */
+.node.t5 circle{stroke:#4488ff!important}          /* W5 — quarters */
+
+/* ── WAVE DISPLAY — now a timeline bar ── */
+#wave-display{
+ position:absolute;top:50px;left:16px;z-index:20;
+ font-family:var(--mono);font-size:10px;color:var(--text-dim);
+ background:rgba(6,11,20,.94);border:1px solid var(--border);
+ padding:14px 16px;display:none;min-width:240px;
+}
+#wave-display .wd-title{
+ font-size:9px;letter-spacing:.12em;text-transform:uppercase;
+ color:var(--text-dim);margin-bottom:10px;
+}
+#wave-timeline{display:flex;gap:4px;margin-bottom:10px}
+.wt-seg{
+ flex:1;height:4px;border-radius:2px;
+ background:rgba(255,255,255,.08);transition:background .4s;
+}
+.wt-seg.active{background:var(--wt-color)}
+#wave-label-main{font-size:11px;color:var(--text-hi);font-weight:600;margin-bottom:2px}
+#wave-time-tag{font-size:9px;color:var(--text-dim);letter-spacing:.08em}
+
+/* ── VIEW MODE BADGE ── */
+#view-mode-badge{
+ display:inline-block;font-family:var(--mono);font-size:8px;
+ letter-spacing:.1em;text-transform:uppercase;padding:2px 6px;
+ border:1px solid var(--border);color:var(--text-dim);margin-left:8px;
+ vertical-align:middle;
+}
+#view-mode-badge.temporal{border-color:rgba(68,136,255,.4);color:#4488ff}
+#view-mode-badge.cascade{border-color:rgba(255,64,64,.4);color:var(--red)}
+
+/* ── IMPACT BLOCK ── */
+#impact-block{
+ margin-top:12px;padding-top:12px;
+ border-top:1px solid var(--border);
+}
+#impact-block .label{
+ font-size:9px;letter-spacing:.1em;text-transform:uppercase;
+ color:var(--text-dim);opacity:.6;margin-bottom:8px;
+ font-family:var(--mono);
+}
+.impact-row{
+ display:flex;align-items:baseline;justify-content:space-between;
+ margin-bottom:6px;
+}
+.impact-row .impact-type{
+ font-family:var(--mono);font-size:9px;letter-spacing:.08em;
+ text-transform:uppercase;color:var(--text-dim);flex-shrink:0;width:80px;
+}
+.impact-row .impact-val{
+ font-family:var(--mono);font-size:14px;font-weight:700;
+ letter-spacing:.02em;text-align:right;
+}
+.impact-row .impact-val.peak{color:#ff6820}
+.impact-row .impact-val.struct{color:#22bbaa}
+.impact-row .impact-note{
+ font-size:9px;color:var(--text-dim);text-align:right;
+ margin-top:-4px;margin-bottom:4px;font-family:var(--mono);
+ letter-spacing:.04em;
+}
+#impact-scenario-name{
+ font-family:var(--mono);font-size:8.5px;color:var(--text-dim);
+ letter-spacing:.06em;margin-bottom:6px;opacity:.7;
+ white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+}
+#impact-none{
+ font-size:11px;color:var(--text-dim);font-style:italic;
+}
+</style>
+</head>
+<body>
+
+<div id="hdr">
+ <div class="logo">Biosecurity Impact</div>
+ <div class="divider"></div>
+ <div class="sub">Global Economic Cascade · Cross-Industry Network</div>
+ <div class="status idle" id="status-txt">● IDLE — SELECT NODE OR RUN SCENARIO</div>
+</div>
+
+<div id="canvas"></div>
+
+<div id="wave-display">
+ <div class="wd-title">CASCADE TRACKER <span id="view-mode-badge" class="temporal">TEMPORAL</span></div>
+ <div id="wave-timeline">
+   <div class="wt-seg" id="wts-0" style="--wt-color:#ff4040" title="T=0: Origin"></div>
+   <div class="wt-seg" id="wts-1" style="--wt-color:#ff6820" title="W1: Hours"></div>
+   <div class="wt-seg" id="wts-2" style="--wt-color:#ffaa00" title="W2: Days"></div>
+   <div class="wt-seg" id="wts-3" style="--wt-color:#aacc00" title="W3: Weeks"></div>
+   <div class="wt-seg" id="wts-4" style="--wt-color:#22bbaa" title="W4: Months"></div>
+   <div class="wt-seg" id="wts-5" style="--wt-color:#4488ff" title="W5: Quarters"></div>
+ </div>
+ <div id="wave-label-main">ORIGIN EVENT</div>
+ <div id="wave-time-tag">T = 0</div>
+</div>
+
+<div id="panel">
+ <div id="panel-header" class="open" onclick="togglePanel()">
+   <span id="panel-header-txt">NODE INFO</span>
+   <span id="panel-toggle">▲</span>
+ </div>
+ <div id="panel-body">
+   <div id="panel-idle">
+     Click any node to explore its sector profile and see first-order dependencies.<br><br>
+     Use <strong>Run Scenario</strong> to simulate a full economic cascade — tracing how a biosecurity event propagates across industries, labour markets, and financial systems.
+   </div>
+   <div id="panel-node">
+     <h2 id="pn-name"></h2>
+     <div class="sector-tag" id="pn-tag"></div>
+     <p id="pn-desc"></p>
+     <div class="metric-row"><span>SHOCK EXPOSURE</span><div class="bar-bg"><div class="bar-fill" id="b-exp"></div></div></div>
+     <div class="metric-row"><span>SYSTEMIC RISK</span><div class="bar-bg"><div class="bar-fill amber" id="b-sys"></div></div></div>
+     <div class="metric-row"><span>RECOVERY TIME</span><div class="bar-bg"><div class="bar-fill blue" id="b-rec"></div></div></div>
+     <div id="impact-block">
+       <div class="label">Economic Impact</div>
+       <div id="impact-scenario-name"></div>
+       <div id="impact-data">
+         <div id="impact-none">Run a scenario to see impact data for this node.</div>
+         <div id="impact-figures" style="display:none">
+           <div class="impact-row">
+             <span class="impact-type">Peak Loss</span>
+             <span class="impact-val peak" id="impact-peak"></span>
+           </div>
+           <div class="impact-note" id="impact-peak-note"></div>
+           <div class="impact-row">
+             <span class="impact-type">Permanent</span>
+             <span class="impact-val struct" id="impact-struct"></span>
+           </div>
+           <div class="impact-note" id="impact-struct-note"></div>
+         </div>
+       </div>
+     </div>
+     <div class="downstream">
+       <div class="label">DOWNSTREAM HITS</div>
+       <div id="pn-hits"></div>
+     </div>
+   </div>
+ </div>
+</div>
+
+<div id="scenario-tray">
+ <h3>Select Biosecurity Scenario</h3>
+ <div class="sc-item" data-sc="0">
+   <div class="sc-tag">RESPIRATORY VIRUS · GLOBAL · 2020</div>
+   <div class="sc-title">COVID-19 PANDEMIC</div>
+   <div class="sc-sub">Origin: Aviation shutdown — cascades into tourism collapse, fuel demand crash, fiscal crises across 190 nations</div>
+ </div>
+ <div class="sc-item" data-sc="1">
+   <div class="sc-tag">AVIAN INFLUENZA · POULTRY · RECURRING</div>
+   <div class="sc-title">HPAI H5N1 — HIGHLY PATHOGENIC AVIAN FLU</div>
+   <div class="sc-sub">Origin: Agriculture — mass culling of flocks triggers food processing halt, commodity price spike, export bans</div>
+ </div>
+ <div class="sc-item" data-sc="2">
+   <div class="sc-tag">PHARMACEUTICAL · MANUFACTURING · 2008–ONGOING</div>
+   <div class="sc-title">GENERIC DRUG CONTAMINATION (HEPARIN / VALSARTAN MODEL)</div>
+   <div class="sc-sub">Origin: Pharma manufacturing — API contamination triggers global recall, hospital shortages, regulatory overhaul</div>
+ </div>
+ <div class="sc-item" data-sc="3">
+   <div class="sc-tag">PORT BIOSECURITY · CONTAINER SHIPPING · 2021–22</div>
+   <div class="sc-title">SHANGHAI / YANTIAN PORT QUARANTINE</div>
+   <div class="sc-sub">Origin: Container shipping — COVID port closures trigger global inventory crisis, chip shortage, retail inflation</div>
+ </div>
+ <div class="sc-item" data-sc="4">
+   <div class="sc-tag">LIVESTOCK DISEASE · FOOT & MOUTH · UK 2001</div>
+   <div class="sc-title">FOOT AND MOUTH DISEASE OUTBREAK</div>
+   <div class="sc-sub">Origin: Agriculture — UK livestock culls worth £8bn devastate rural economies, tourism, and food exports</div>
+ </div>
+ <div class="sc-item" data-sc="5">
+   <div class="sc-tag">AQUACULTURE · SHRIMP · ASIA 2010s</div>
+   <div class="sc-title">EARLY MORTALITY SYNDROME — SHRIMP AQUACULTURE</div>
+   <div class="sc-sub">Origin: Agriculture — EMS pathogen wipes 50%+ of Thai/Vietnamese shrimp production; cold chain and food retail shock</div>
+ </div>
+ <div class="sc-item" data-sc="6">
+   <div class="sc-tag">CROP PATHOGEN · WHEAT RUST · GLOBAL RISK</div>
+   <div class="sc-title">UG99 WHEAT STEM RUST</div>
+   <div class="sc-sub">Origin: Agriculture — virulent rust strain threatens 80% of global wheat varieties; food security and commodity market crisis</div>
+ </div>
+ <div class="sc-item" data-sc="7">
+   <div class="sc-tag">SWINE FEVER · PORK SUPPLY · CHINA 2018–19</div>
+   <div class="sc-title">AFRICAN SWINE FEVER — CHINA</div>
+   <div class="sc-sub">Origin: Agriculture — 40% of China's pig herd culled; global pork prices double, feed commodity markets destabilised</div>
+ </div>
+ <div class="sc-item" data-sc="8">
+   <div class="sc-tag">BIOTERRORISM / CONTAMINATION · FOOD RETAIL</div>
+   <div class="sc-title">DELIBERATE FOOD CHAIN CONTAMINATION</div>
+   <div class="sc-sub">Origin: Food retail — targeted contamination event triggers mass recall, consumer panic, insurance litigation wave</div>
+ </div>
+ <div class="sc-item" data-sc="9">
+   <div class="sc-tag">VECTOR-BORNE · ZIKA / DENGUE · TROPICS</div>
+   <div class="sc-title">ZIKA / ARBOVIRAL OUTBREAK — TOURISM REGIONS</div>
+   <div class="sc-sub">Origin: Tourism industry — travel advisories for Brazil/SE Asia collapse tourism revenue, labour displacement, airline load factors</div>
+ </div>
+ <div class="sc-item" data-sc="10">
+   <div class="sc-tag">CORONAVIRUS · ASIA · 2003 · $54BN</div>
+   <div class="sc-title">SARS — SEVERE ACUTE RESPIRATORY SYNDROME</div>
+   <div class="sc-sub">Origin: Aviation — only 8,000 infections but $54bn economic shock; textbook case of fear destroying consumer confidence faster than disease spreads</div>
+ </div>
+ <div class="sc-item" data-sc="11">
+   <div class="sc-tag">CORONAVIRUS · SOUTH KOREA · 2015 · $8–10BN</div>
+   <div class="sc-title">MERS — MIDDLE EAST RESPIRATORY SYNDROME</div>
+   <div class="sc-sub">Origin: Hospitals — 38 deaths, 16,000 quarantined, but consumer spending collapsed; South Korea's GDP fell 0.4% in one quarter</div>
+ </div>
+ <div class="sc-item" data-sc="12">
+   <div class="sc-tag">PRION DISEASE · CATTLE · UK 1996–2006 · ~$30BN</div>
+   <div class="sc-title">BSE / MAD COW DISEASE</div>
+   <div class="sc-sub">Origin: Agriculture — EU beef export ban lasted 10 years; tourism and rural economies devastated; triggered permanent food safety regulatory overhaul</div>
+ </div>
+ <div class="sc-item" data-sc="13">
+   <div class="sc-tag">HAEMORRHAGIC FEVER · WEST AFRICA · 2014–16 · $2.8–32BN</div>
+   <div class="sc-title">EBOLA — WEST AFRICAN EPIDEMIC</div>
+   <div class="sc-sub">Origin: Hospitals — fear-driven FDI flight and trade collapse caused 80–90% of economic damage; Guinea, Liberia, Sierra Leone lost years of GDP growth</div>
+ </div>
+ <div class="sc-item" data-sc="14">
+   <div class="sc-tag">CROP PATHOGEN · CITRUS · US/GLOBAL · $10BN+</div>
+   <div class="sc-title">CITRUS GREENING — HUANGLONGBING (HLB)</div>
+   <div class="sc-sub">Origin: Agriculture — incurable bacterial disease destroying global citrus industry; Florida alone lost $8.5bn over 10 years, production down 80%</div>
+ </div>
+ <div class="sc-item" data-sc="15">
+   <div class="sc-tag">PLANT PATHOGEN · OLIVE TREES · EUROPE · €20BN RISK</div>
+   <div class="sc-title">XYLELLA FASTIDIOSA — EUROPEAN OLIVE CRISIS</div>
+   <div class="sc-sub">Origin: Agriculture — bacterium spreading through Italian olive groves; threatens $5bn+ olive oil industry and Mediterranean agricultural identity</div>
+ </div>
+ <div class="sc-item" data-sc="16">
+   <div class="sc-tag">BIOTERRORISM · ANTHRAX · USA · 2001 · ~$6BN</div>
+   <div class="sc-title">ANTHRAX LETTER ATTACKS — US POSTAL SYSTEM</div>
+   <div class="sc-sub">Origin: Retail/postal — 5 deaths but $6bn in decontamination, disruption, and fear costs; demonstrated asymmetric economic impact of bioterrorism</div>
+ </div>
+ <div class="sc-item" data-sc="17">
+   <div class="sc-tag">AVIAN INFLUENZA · US POULTRY · 2022–ONGOING</div>
+   <div class="sc-title">HPAI H5N1 — US OUTBREAK (EGG & POULTRY CRISIS)</div>
+   <div class="sc-sub">Origin: Agriculture — largest animal health event in US history; egg prices doubled in 2022–23, $3.3bn in direct losses, H5N1 now detected in dairy cattle</div>
+ </div>
+ <div class="sc-item" data-sc="18">
+   <div class="sc-tag">ZOONOTIC · SOUTH/SE ASIA · LATENT RISK · WHO PRIORITY</div>
+   <div class="sc-title">NIPAH VIRUS — NEXT PANDEMIC CANDIDATE</div>
+   <div class="sc-sub">Origin: Hospitals — low current cost but 40–75% fatality rate, no vaccine, human-to-human transmission confirmed; modelled pandemic potential exceeds COVID</div>
+ </div>
+</div>
+
+<div id="legend">
+ <div id="legend-header" class="open" onclick="toggleLegend()">
+   <h3>Sector Categories</h3>
+   <span id="legend-toggle">▲</span>
+ </div>
+ <div id="legend-body">
+   <div class="li"><div class="ldot" style="background:#1a4fa8;border-color:#4488ff"></div>Transport & Logistics</div>
+   <div class="li"><div class="ldot" style="background:#1a7a4a;border-color:#2ecc88"></div>Agriculture & Food</div>
+   <div class="li"><div class="ldot" style="background:#6a2e9e;border-color:#9966dd"></div>Manufacturing & Industry</div>
+   <div class="li"><div class="ldot" style="background:#8a5a00;border-color:#ffaa00"></div>Energy & Resources</div>
+   <div class="li"><div class="ldot" style="background:#8a1a1a;border-color:#ff6666"></div>Healthcare & Pharma</div>
+   <div class="li"><div class="ldot" style="background:#0e5a70;border-color:#22aacc"></div>Finance & Insurance</div>
+   <div class="li"><div class="ldot" style="background:#3a4a20;border-color:#88aa44"></div>Tourism & Hospitality</div>
+   <div class="li"><div class="ldot" style="background:#4a2a50;border-color:#aa66cc"></div>Retail & Consumer</div>
+   <div class="li"><div class="ldot" style="background:#1a3a5a;border-color:#5588aa"></div>Government & Fiscal</div>
+   <div class="li"><div class="ldot" style="background:#4a3a10;border-color:#cc9922"></div>Labour & Employment</div>
+   <div class="sep"></div>
+   <div class="li"><div class="lline"></div>Dependency link</div>
+   <div class="li"><div class="lline cascade"></div>Active cascade path</div>
+   <div id="time-legend-section">
+   <div class="sep"></div>
+   <div style="font-family:var(--mono);font-size:9px;letter-spacing:.1em;text-transform:uppercase;color:var(--text-dim);margin-bottom:8px">Impact Timing</div>
+   <div class="li"><div class="ldot-time" style="border-color:#ff4040"></div>T=0 · Origin event</div>
+   <div class="li"><div class="ldot-time" style="border-color:#ff6820"></div>T+hours · Immediate</div>
+   <div class="li"><div class="ldot-time" style="border-color:#ffaa00"></div>T+days · Short-term</div>
+   <div class="li"><div class="ldot-time" style="border-color:#aacc00"></div>T+weeks · Medium-term</div>
+   <div class="li"><div class="ldot-time" style="border-color:#22bbaa"></div>T+months · Structural</div>
+   <div class="li"><div class="ldot-time" style="border-color:#4488ff"></div>T+quarters · Macro scarring</div>
+   </div>
+ </div>
+</div>
+
+<div id="controls">
+ <div id="btn-reset" class="btn">Reset</div>
+ <div id="btn-viewmode" class="btn active" title="Switch between Temporal and Cascade views">⏱ Temporal</div>
+ <div id="btn-scenario" class="btn">Run Scenario ▾</div>
+</div>
+
+<script>
+const W = window.innerWidth, H = window.innerHeight;
+
+// ═══════════════════════════════════════════════════════════════
+// NODE DEFINITIONS — sector, color, stroke, radius, metrics, downstream
+// ═══════════════════════════════════════════════════════════════
+const SECTORS = {
+ transport:   {color:"#1a4fa8", stroke:"#4488ff"},
+ agri:        {color:"#1a7a4a", stroke:"#2ecc88"},
+ mfg:         {color:"#6a2e9e", stroke:"#9966dd"},
+ energy:      {color:"#8a5a00", stroke:"#ffaa00"},
+ health:      {color:"#8a1a1a", stroke:"#ff6666"},
+ finance:     {color:"#0e5a70", stroke:"#22aacc"},
+ tourism:     {color:"#3a4a20", stroke:"#88aa44"},
+ retail:      {color:"#4a2a50", stroke:"#aa66cc"},
+ govt:        {color:"#1a3a5a", stroke:"#5588aa"},
+ labour:      {color:"#4a3a10", stroke:"#cc9922"},
+};
+
+const nodes = [
+ // ── TRANSPORT ──
+ {id:"aviation", label:"Int'l Aviation", sector:"transport", r:18,
+  exp:95, sys:90, rec:35,
+  desc:"Border closures and quarantine mandates ground 90%+ of international flights. Demand destruction propagates instantly to fuel, tourism, airports, and aircraft leasing.",
+  hits:["Jet Fuel Demand","Tourism Industry","Airport Operators","Aircraft Leasing","Duty-Free Retail","Carbon Markets"]},
+ {id:"shipping", label:"Container Shipping", sector:"transport", r:17,
+  exp:88, sys:85, rec:45,
+  desc:"Port quarantines and crew isolation rules slash throughput. Freight rates spike, triggering inflation across goods-dependent industries.",
+  hits:["Port Operators","Retail Inventory","Auto Manufacturing","Electronics Supply","Energy Exports"]},
+ {id:"ports", label:"Global Ports", sector:"transport", r:15,
+  exp:85, sys:80, rec:50,
+  desc:"Inspection delays and crew quarantines back up container queues for weeks. Port operator revenues collapse while holding costs climb.",
+  hits:["Container Shipping","3PL/Warehousing","Import Retail","Food Imports","Customs Revenue"]},
+ {id:"rail_freight", label:"Rail & Road Freight", sector:"transport", r:12,
+  exp:65, sys:70, rec:60,
+  desc:"Cross-border biosecurity checks create land-border delays. JIT manufacturing suffers; fuel demand dips as truck miles fall.",
+  hits:["Auto Parts Supply","Retail Distribution","Fuel Consumption","Driver Labour"]},
+ {id:"cold_chain", label:"Cold Chain Logistics", sector:"transport", r:13,
+  exp:82, sys:85, rec:48,
+  desc:"Most biosecurity-sensitive logistics segment. Interruption affects pharma distribution, fresh food, and vaccine rollouts simultaneously.",
+  hits:["Pharma Distribution","Fresh Produce","Vaccine Supply","Food Retail"]},
+
+ // ── ENERGY ──
+ {id:"jet_fuel", label:"Jet Fuel Demand", sector:"energy", r:14,
+  exp:92, sys:75, rec:40,
+  desc:"Aviation demand collapse in 2020 cut jet fuel consumption by ~60%. Refineries had to repurpose capacity, rippling through refinery margins and crude oil pricing.",
+  hits:["Crude Oil Price","Refinery Margins","Oil Majors","Carbon Markets","Petrochemicals"]},
+ {id:"crude_oil", label:"Crude Oil Markets", sector:"energy", r:17,
+  exp:88, sys:88, rec:50,
+  desc:"Demand shock from aviation and industrial slowdown crashed Brent by 65% in Q1 2020. Petrostates faced immediate fiscal crises; offshore investment was cancelled.",
+  hits:["Petrostate Revenues","LNG Markets","Offshore Investment","Energy Workers","Sovereign Wealth Funds"]},
+ {id:"petrostate", label:"Petrostate Revenues", sector:"energy", r:13,
+  exp:80, sys:82, rec:42,
+  desc:"Gulf states, Russia, Nigeria, Venezuela saw $500bn+ revenue collapse in 2020. IMF emergency lending surged; domestic subsidy cuts sparked social instability.",
+  hits:["Sovereign Debt","FX Reserves","Domestic Subsidies","Social Stability","IMF Lending"]},
+ {id:"power_grid", label:"Industrial Power Grid", sector:"energy", r:12,
+  exp:60, sys:72, rec:65,
+  desc:"Factory shutdowns reduce industrial electricity demand. Utilities face revenue shortfalls; renewable investment timelines slip.",
+  hits:["Utility Revenues","Renewable Investment","Carbon Markets","Industrial Labour"]},
+
+ // ── AGRICULTURE & FOOD ──
+ {id:"agri_prod", label:"Global Agriculture", sector:"agri", r:16,
+  exp:75, sys:80, rec:50,
+  desc:"Biosecurity events trigger export bans, border rejections, and crop destruction. Labour shortages from movement controls reduce harvests by 15–40%.",
+  hits:["Food Processing","Commodity Prices","Agri-Chemicals","Rural Labour","Food Retail"]},
+ {id:"food_proc", label:"Food Processing", sector:"agri", r:13,
+  exp:80, sys:78, rec:55,
+  desc:"Processing plant closures (COVID meatpacking model) create acute shortages while raw inputs pile up at farm gate. Prices diverge violently across the chain.",
+  hits:["Food Retail","Cold Chain","Packaging Industry","Commodity Prices","Labour Markets"]},
+ {id:"commodity_mkts", label:"Commodity Markets", sector:"finance", r:14,
+  exp:85, sys:82, rec:55,
+  desc:"Biosecurity shocks create extreme commodity price volatility — CBOT, LME, ICE all saw circuit breakers trigger during COVID. Hedging costs soar for food importers.",
+  hits:["Food Importers","Sovereign Food Security","Agri Finance","Derivatives Markets"]},
+
+ // ── MANUFACTURING ──
+ {id:"auto_mfg", label:"Auto Manufacturing", sector:"mfg", r:15,
+  exp:78, sys:82, rec:50,
+  desc:"JIT production means a 2-week parts shortage halts entire assembly lines. The 2021 chip shortage — itself a biosecurity downstream — cost the industry $210bn.",
+  hits:["Steel & Aluminium","Electronics Components","Dealer Networks","Auto Finance","Auto Workers"]},
+ {id:"electronics", label:"Electronics & Semicon", sector:"mfg", r:16,
+  exp:80, sys:88, rec:42,
+  desc:"Fab quarantines and logistics disruptions caused the 2020–22 chip crisis. Every downstream sector from cars to white goods to defence was affected.",
+  hits:["Auto Manufacturing","Consumer Electronics","Defence Procurement","AI Infrastructure","PCB Assembly"]},
+ {id:"pharma_mfg", label:"Pharma Manufacturing", sector:"health", r:15,
+  exp:78, sys:90, rec:45,
+  desc:"Active ingredient shortages from biosecurity closures in India/China propagate into medicine shortages in 80+ countries within 6 weeks.",
+  hits:["Hospital Systems","Retail Pharmacy","Biotech R&D","Regulatory Bodies","Insurance Costs"]},
+ {id:"construction", label:"Construction & RE", sector:"mfg", r:12,
+  exp:65, sys:65, rec:58,
+  desc:"Labour movement restrictions and materials supply disruption delay projects. Hotel and office pipelines freeze as demand forecasts collapse.",
+  hits:["Building Materials","Construction Labour","Commercial RE","Bank Lending","Cement & Steel"]},
+
+ // ── TOURISM & HOSPITALITY ──
+ {id:"tourism", label:"Tourism Industry", sector:"tourism", r:16,
+  exp:95, sys:85, rec:35,
+  desc:"International tourism collapsed 74% in 2020. For countries where tourism is 10–20% of GDP (Thailand, Greece, Maldives), this was an existential fiscal shock.",
+  hits:["Hotels & Resorts","Restaurants & Food Service","Local Transport","Arts & Entertainment","Airport Retail","Tax Revenues"]},
+ {id:"hospitality", label:"Hotels & Hospitality", sector:"tourism", r:13,
+  exp:92, sys:80, rec:38,
+  desc:"Hotel occupancy rates fell below 20% globally in April 2020. Mass layoffs of low-wage, non-portable service workers followed within weeks.",
+  hits:["Hospitality Labour","Food & Beverage Supply","Commercial Real Estate","Debt Servicing","Local Tax Base"]},
+ {id:"arts_events", label:"Events & Entertainment", sector:"tourism", r:11,
+  exp:90, sys:68, rec:40,
+  desc:"Live events, sports, and cultural venues closed entirely. Supply chain effects include AV equipment, ticketing platforms, and ancillary services.",
+  hits:["Media & Broadcast","Hospitality Labour","Local Economies","Sponsorship Markets"]},
+
+ // ── RETAIL & CONSUMER ──
+ {id:"retail", label:"Retail & E-Commerce", sector:"retail", r:14,
+  exp:72, sys:75, rec:60,
+  desc:"Physical retail collapsed while e-commerce surged. Net effect: warehouse logistics boomed, high-street commercial real estate suffered structural decline.",
+  hits:["Commercial Real Estate","Delivery Networks","Consumer Goods Mfg","Advertising Markets","Payment Systems"]},
+ {id:"food_retail", label:"Food Retail & Grocery", sector:"retail", r:13,
+  exp:68, sys:78, rec:65,
+  desc:"Essential status insulated grocery from closure, but biosecurity events create acute panic-buying, SKU shortages, and supplier credit stress.",
+  hits:["Food Processing","Packaging Supply","Delivery Labour","Commodity Prices","Consumer Debt"]},
+ {id:"pharma_retail", label:"Retail Pharmacy", sector:"health", r:11,
+  exp:70, sys:80, rec:60,
+  desc:"Generic drug shortages hit retail pharmacy inventory within weeks of a manufacturing disruption. Public health outcomes deteriorate; pressure on hospital systems rises.",
+  hits:["Hospital Systems","Insurance Costs","Consumer Health","Government Health Budgets"]},
+
+ // ── HEALTHCARE ──
+ {id:"hospitals", label:"Hospital Systems", sector:"health", r:15,
+  exp:88, sys:92, rec:45,
+  desc:"Biosecurity events create simultaneous surge in demand AND supply chain disruption (PPE, drugs, equipment). Staff infection rates reduce capacity further.",
+  hits:["Health Budgets","Insurance Markets","Medical Devices","Pharma Demand","Healthcare Labour"]},
+ {id:"biotech", label:"Biotech & Vaccines", sector:"health", r:13,
+  exp:55, sys:80, rec:55,
+  desc:"Biosecurity events create massive demand for vaccines and diagnostics. Short-term: investment surge. Long-term: supply bottlenecks on cold chain and raw materials.",
+  hits:["Pharma Manufacturing","Cold Chain","Regulatory Bodies","VC/PE Investment","IP Markets"]},
+
+ // ── FINANCE & INSURANCE ──
+ {id:"insurance", label:"Insurance Markets", sector:"finance", r:14,
+  exp:78, sys:85, rec:52,
+  desc:"Pandemic and biosecurity exclusions were tested across business interruption, travel, and trade credit policies. Lloyd's estimated $107bn in COVID losses.",
+  hits:["Reinsurance Markets","Credit Markets","Business Investment","Legal/Litigation","Regulatory Capital"]},
+ {id:"credit_mkts", label:"Credit & Bond Markets", sector:"finance", r:15,
+  exp:82, sys:90, rec:50,
+  desc:"Sovereign and corporate credit spreads widen sharply. High-yield sectors (aviation, hospitality, retail) face refinancing crises. Central bank intervention required.",
+  hits:["Sovereign Debt","Corporate Bonds","Pension Funds","FX Markets","Leveraged Buyouts"]},
+ {id:"fx_mkts", label:"FX & EM Markets", sector:"finance", r:13,
+  exp:80, sys:82, rec:55,
+  desc:"Emerging market currencies collapse against USD as capital flees to safety. Tourism-dependent and commodity-exporting nations hit hardest.",
+  hits:["Import Costs","Debt Servicing","Petrostate Revenues","Food Security","IMF Reserves"]},
+ {id:"equity_mkts", label:"Equity Markets", sector:"finance", r:14,
+  exp:85, sys:78, rec:65,
+  desc:"S&P 500 fell 34% in 33 days in 2020. Sector divergence was extreme: airlines, hospitality, energy down 60–80%; tech and pharma up.",
+  hits:["Pension Funds","Wealth Effects","Corporate Investment","M&A Activity","IPO Markets"]},
+ {id:"pe_vc", label:"PE / VC Investment", sector:"finance", r:11,
+  exp:65, sys:72, rec:58,
+  desc:"Deal flow freezes during acute biosecurity events. Portfolio company stress diverts management attention. Dry powder deployment slows for 12–18 months.",
+  hits:["Biotech R&D","Tech Startups","Healthcare Investment","Labour Markets","Innovation Pipeline"]},
+
+ // ── GOVERNMENT & FISCAL ──
+ {id:"tax_revenue", label:"Tax Revenues", sector:"govt", r:14,
+  exp:80, sys:85, rec:48,
+  desc:"VAT, payroll tax, and corporate tax receipts collapse simultaneously. UK lost ~£140bn in tax revenue in 2020–21. Fiscal deficit widens to wartime levels.",
+  hits:["Public Services","Sovereign Debt","Social Transfers","Infrastructure Investment","Credit Rating"]},
+ {id:"sovereign_debt", label:"Sovereign Debt", sector:"govt", r:15,
+  exp:78, sys:88, rec:42,
+  desc:"Emergency borrowing to fund stimulus and healthcare pushes debt/GDP ratios to post-WWII highs. Debt sustainability concerns rise for emerging markets.",
+  hits:["Credit Rating","IMF Lending","FX Markets","Pension Funds","Austerity Risk"]},
+ {id:"central_banks", label:"Central Banks", sector:"govt", r:14,
+  exp:55, sys:90, rec:70,
+  desc:"QE, rate cuts, and emergency lending facilities deployed at unprecedented scale. Fed balance sheet grew $3tn in 8 weeks in 2020.",
+  hits:["Credit Markets","Equity Markets","Inflation","Currency Valuations","Bank Lending"]},
+ {id:"welfare_state", label:"Social Safety Net", sector:"govt", r:12,
+  exp:72, sys:80, rec:50,
+  desc:"Furlough schemes, unemployment benefits, and food security programmes face simultaneous surge in demand. Fiscal pressure accelerates welfare reform debates.",
+  hits:["Tax Revenues","Sovereign Debt","Consumer Spending","Social Cohesion","Labour Markets"]},
+
+ // ── LABOUR ──
+ {id:"labour_service", label:"Service Sector Labour", sector:"labour", r:14,
+  exp:90, sys:80, rec:42,
+  desc:"Low-wage, non-remote, non-portable service workers (hospitality, retail, transport) absorb the first and deepest employment shock. Recovery is slow and uneven.",
+  hits:["Consumer Spending","Welfare State","Mental Health Services","Housing Markets","Local Tax Base"]},
+ {id:"labour_mfg", label:"Industrial Labour", sector:"labour", r:12,
+  exp:72, sys:75, rec:55,
+  desc:"Factory floor workers face both redundancy and infection risk. Skills loss and worker reluctance to return depress industrial productivity for years.",
+  hits:["Auto Manufacturing","Food Processing","Construction","Union Relations","Productivity"]},
+ {id:"labour_health", label:"Healthcare Workforce", sector:"labour", r:13,
+  exp:85, sys:92, rec:40,
+  desc:"Healthcare workers face infection, burnout, and moral injury simultaneously. Long-term attrition creates structural healthcare capacity gaps.",
+  hits:["Hospital Systems","Mental Health Services","Medical Training","Immigration Policy","Public Health"]},
+];
+
+// ═══════════════════════════════════════════════════════════════
+// LINKS — cross-industry interconnections
+// ═══════════════════════════════════════════════════════════════
+const rawLinks = [
+ // Aviation cascades
+ ["aviation","jet_fuel"],
+ ["aviation","tourism"],
+ ["aviation","ports"],
+ ["aviation","cold_chain"],
+ ["aviation","labour_service"],
+ ["aviation","equity_mkts"],
+ ["aviation","insurance"],
+
+ // Fuel/Energy cascades
+ ["jet_fuel","crude_oil"],
+ ["crude_oil","petrostate"],
+ ["crude_oil","equity_mkts"],
+ ["crude_oil","fx_mkts"],
+ ["petrostate","sovereign_debt"],
+ ["petrostate","fx_mkts"],
+ ["petrostate","welfare_state"],
+ ["power_grid","auto_mfg"],
+ ["power_grid","electronics"],
+
+ // Shipping/Ports
+ ["shipping","ports"],
+ ["shipping","retail"],
+ ["shipping","auto_mfg"],
+ ["shipping","electronics"],
+ ["shipping","food_retail"],
+ ["shipping","commodity_mkts"],
+ ["ports","rail_freight"],
+ ["ports","food_retail"],
+ ["ports","pharma_mfg"],
+ ["cold_chain","pharma_mfg"],
+ ["cold_chain","food_proc"],
+ ["cold_chain","biotech"],
+ ["rail_freight","auto_mfg"],
+ ["rail_freight","food_proc"],
+
+ // Tourism/Hospitality
+ ["tourism","hospitality"],
+ ["tourism","arts_events"],
+ ["tourism","labour_service"],
+ ["tourism","tax_revenue"],
+ ["tourism","fx_mkts"],
+ ["hospitality","labour_service"],
+ ["hospitality","food_proc"],
+ ["hospitality","credit_mkts"],
+ ["arts_events","labour_service"],
+ ["arts_events","retail"],
+
+ // Agriculture/Food
+ ["agri_prod","food_proc"],
+ ["agri_prod","commodity_mkts"],
+ ["agri_prod","labour_mfg"],
+ ["food_proc","food_retail"],
+ ["food_proc","cold_chain"],
+ ["food_proc","labour_mfg"],
+ ["food_retail","labour_service"],
+ ["food_retail","retail"],
+ ["commodity_mkts","fx_mkts"],
+ ["commodity_mkts","insurance"],
+ ["commodity_mkts","sovereign_debt"],
+
+ // Manufacturing
+ ["auto_mfg","electronics"],
+ ["auto_mfg","labour_mfg"],
+ ["auto_mfg","credit_mkts"],
+ ["electronics","auto_mfg"],
+ ["electronics","retail"],
+ ["electronics","pe_vc"],
+ ["pharma_mfg","hospitals"],
+ ["pharma_mfg","pharma_retail"],
+ ["pharma_mfg","cold_chain"],
+ ["construction","labour_mfg"],
+ ["construction","credit_mkts"],
+
+ // Healthcare
+ ["hospitals","labour_health"],
+ ["hospitals","insurance"],
+ ["hospitals","tax_revenue"],
+ ["biotech","pe_vc"],
+ ["biotech","equity_mkts"],
+ ["pharma_retail","hospitals"],
+
+ // Finance
+ ["insurance","credit_mkts"],
+ ["credit_mkts","sovereign_debt"],
+ ["credit_mkts","equity_mkts"],
+ ["credit_mkts","central_banks"],
+ ["fx_mkts","sovereign_debt"],
+ ["fx_mkts","commodity_mkts"],
+ ["equity_mkts","pe_vc"],
+ ["equity_mkts","central_banks"],
+ ["pe_vc","biotech"],
+ ["central_banks","credit_mkts"],
+ ["central_banks","sovereign_debt"],
+
+ // Government/Fiscal
+ ["tax_revenue","sovereign_debt"],
+ ["tax_revenue","welfare_state"],
+ ["sovereign_debt","fx_mkts"],
+ ["sovereign_debt","central_banks"],
+ ["welfare_state","labour_service"],
+ ["welfare_state","tax_revenue"],
+
+ // Labour feedbacks
+ ["labour_service","retail"],
+ ["labour_service","welfare_state"],
+ ["labour_mfg","auto_mfg"],
+ ["labour_health","hospitals"],
+ ["labour_health","welfare_state"],
+];
+
+const links = rawLinks.map(([s,t]) => ({source:s, target:t}));
+
+// ═══════════════════════════════════════════════════════════════
+// SCENARIOS — wave-based cascade with economic narrative
+// ═══════════════════════════════════════════════════════════════
+const scenarios = [
+ // 0 — COVID-19
+ {
+   name:"COVID-19 PANDEMIC",
+   origin:"aviation",
+   waves:[
+     {label:"W1: AVIATION GROUNDED",       ids:["tourism","jet_fuel","labour_service","insurance"]},
+     {label:"W2: DEMAND COLLAPSE",          ids:["hospitality","crude_oil","arts_events","retail"]},
+     {label:"W3: FINANCIAL STRESS",         ids:["equity_mkts","credit_mkts","fx_mkts","tax_revenue"]},
+     {label:"W4: FISCAL EMERGENCY",         ids:["sovereign_debt","welfare_state","central_banks","petrostate"]},
+     {label:"W5: STRUCTURAL SCARRING",      ids:["labour_mfg","construction","pe_vc","labour_health"]},
+   ]
+ },
+ // 1 — HPAI H5N1
+ {
+   name:"HPAI H5N1 — AVIAN INFLUENZA",
+   origin:"agri_prod",
+   waves:[
+     {label:"W1: MASS CULLING BEGINS",      ids:["food_proc","commodity_mkts","labour_mfg","cold_chain"]},
+     {label:"W2: EXPORT BANS TRIGGERED",    ids:["food_retail","rail_freight","insurance","ports"]},
+     {label:"W3: PROTEIN PRICE SPIKE",      ids:["fx_mkts","sovereign_debt","retail","welfare_state"]},
+     {label:"W4: FISCAL RESPONSE",          ids:["tax_revenue","central_banks","equity_mkts","credit_mkts"]},
+     {label:"W5: LABOUR & HEALTH IMPACT",   ids:["labour_service","hospitals","labour_health","construction"]},
+   ]
+ },
+ // 2 — Pharma contamination
+ {
+   name:"GENERIC DRUG CONTAMINATION EVENT",
+   origin:"pharma_mfg",
+   waves:[
+     {label:"W1: RECALL & SUPPLY HALT",     ids:["hospitals","pharma_retail","cold_chain","biotech"]},
+     {label:"W2: HEALTHCARE CRISIS",        ids:["labour_health","insurance","welfare_state"]},
+     {label:"W3: FINANCIAL REPRICING",      ids:["equity_mkts","credit_mkts","pe_vc"]},
+     {label:"W4: FISCAL PRESSURE",          ids:["tax_revenue","sovereign_debt","central_banks"]},
+     {label:"W5: ECONOMIC SCARRING",        ids:["labour_service","retail","fx_mkts","construction"]},
+   ]
+ },
+ // 3 — Port quarantine
+ {
+   name:"SHANGHAI / YANTIAN PORT QUARANTINE",
+   origin:"shipping",
+   waves:[
+     {label:"W1: LOGISTICS FREEZE",         ids:["ports","cold_chain","rail_freight","auto_mfg"]},
+     {label:"W2: INVENTORY CRISIS",         ids:["electronics","food_proc","retail","food_retail"]},
+     {label:"W3: INFLATION SHOCK",          ids:["commodity_mkts","insurance","credit_mkts","fx_mkts"]},
+     {label:"W4: INDUSTRIAL CONTRACTION",   ids:["labour_mfg","power_grid","construction","equity_mkts"]},
+     {label:"W5: MACRO SPILLOVER",          ids:["sovereign_debt","tax_revenue","central_banks","welfare_state"]},
+   ]
+ },
+ // 4 — Foot and Mouth 2001
+ {
+   name:"FOOT AND MOUTH DISEASE — UK 2001",
+   origin:"agri_prod",
+   waves:[
+     {label:"W1: LIVESTOCK CULLS BEGIN",    ids:["food_proc","labour_mfg","cold_chain","rail_freight"]},
+     {label:"W2: EXPORT BANS & TOURISM HIT",ids:["tourism","commodity_mkts","insurance","food_retail"]},
+     {label:"W3: RURAL ECONOMIC COLLAPSE",  ids:["hospitality","labour_service","arts_events","retail"]},
+     {label:"W4: INSURANCE & CREDIT STRESS",ids:["credit_mkts","equity_mkts","tax_revenue","welfare_state"]},
+     {label:"W5: RECOVERY INVESTMENT",      ids:["sovereign_debt","central_banks","construction","biotech"]},
+   ]
+ },
+ // 5 — EMS Shrimp
+ {
+   name:"EARLY MORTALITY SYNDROME — SHRIMP",
+   origin:"agri_prod",
+   waves:[
+     {label:"W1: AQUACULTURE PRODUCTION CRASH", ids:["food_proc","cold_chain","labour_mfg","commodity_mkts"]},
+     {label:"W2: EXPORT REVENUE COLLAPSE",  ids:["fx_mkts","ports","food_retail","shipping"]},
+     {label:"W3: FOOD INFLATION",           ids:["retail","insurance","sovereign_debt","welfare_state"]},
+     {label:"W4: FISCAL & TRADE IMPACT",    ids:["tax_revenue","credit_mkts","equity_mkts"]},
+     {label:"W5: LABOUR DISPLACEMENT",      ids:["labour_service","hospitals","labour_health","central_banks"]},
+   ]
+ },
+ // 6 — UG99 Wheat Rust
+ {
+   name:"UG99 WHEAT STEM RUST — GLOBAL THREAT",
+   origin:"agri_prod",
+   waves:[
+     {label:"W1: CROP FAILURE RISK",        ids:["commodity_mkts","food_proc","labour_mfg","rail_freight"]},
+     {label:"W2: FOOD IMPORT EMERGENCY",    ids:["ports","shipping","food_retail","sovereign_debt"]},
+     {label:"W3: COMMODITY MARKET SHOCK",   ids:["fx_mkts","insurance","credit_mkts","equity_mkts"]},
+     {label:"W4: HUMANITARIAN CRISIS",      ids:["welfare_state","hospitals","tax_revenue","labour_service"]},
+     {label:"W5: POLITICAL INSTABILITY",    ids:["central_banks","petrostate","construction","pe_vc"]},
+   ]
+ },
+ // 7 — African Swine Fever
+ {
+   name:"AFRICAN SWINE FEVER — CHINA 2018",
+   origin:"agri_prod",
+   waves:[
+     {label:"W1: HERD CULLING — 40% LOSS",  ids:["food_proc","commodity_mkts","cold_chain","labour_mfg"]},
+     {label:"W2: GLOBAL PORK PRICE SHOCK",  ids:["food_retail","shipping","ports","insurance"]},
+     {label:"W3: FEED MARKET CONTAGION",    ids:["fx_mkts","retail","rail_freight","equity_mkts"]},
+     {label:"W4: EM CURRENCY PRESSURE",     ids:["sovereign_debt","credit_mkts","welfare_state","tax_revenue"]},
+     {label:"W5: STRUCTURAL FARM SHIFT",    ids:["construction","labour_service","labour_health","central_banks"]},
+   ]
+ },
+ // 8 — Deliberate food contamination
+ {
+   name:"DELIBERATE FOOD CHAIN CONTAMINATION",
+   origin:"food_retail",
+   waves:[
+     {label:"W1: MASS PRODUCT RECALL",      ids:["food_proc","cold_chain","retail","insurance"]},
+     {label:"W2: CONSUMER PANIC & BOYCOTT", ids:["labour_service","hospitality","commodity_mkts","agri_prod"]},
+     {label:"W3: LITIGATION & CREDIT STRESS",ids:["credit_mkts","equity_mkts","pe_vc","pharma_retail"]},
+     {label:"W4: REGULATORY LOCKDOWN",      ids:["ports","shipping","rail_freight","tax_revenue"]},
+     {label:"W5: MACRO & WELFARE IMPACT",   ids:["sovereign_debt","welfare_state","central_banks","labour_health"]},
+   ]
+ },
+ // 9 — Zika/Arboviral
+ {
+   name:"ZIKA / ARBOVIRAL OUTBREAK — TOURISM REGIONS",
+   origin:"tourism",
+   waves:[
+     {label:"W1: TRAVEL ADVISORIES ISSUED", ids:["aviation","hospitality","labour_service","arts_events"]},
+     {label:"W2: AIRLINE LOAD COLLAPSE",    ids:["jet_fuel","airports","insurance","retail"]},
+     {label:"W3: REGIONAL FX CRISIS",       ids:["fx_mkts","sovereign_debt","commodity_mkts","credit_mkts"]},
+     {label:"W4: HEALTH SYSTEM STRESS",     ids:["hospitals","pharma_mfg","biotech","labour_health"]},
+     {label:"W5: FISCAL & SOCIAL FALLOUT",  ids:["tax_revenue","welfare_state","central_banks","equity_mkts"]},
+   ]
+ },
+ // 10 — SARS 2003
+ {
+   name:"SARS 2003 — SEVERE ACUTE RESPIRATORY SYNDROME",
+   origin:"aviation",
+   waves:[
+     {label:"W1: ASIA-PAC AVIATION SHUTDOWN", ids:["tourism","hospitality","jet_fuel","labour_service"]},
+     {label:"W2: CONSUMER CONFIDENCE CRASH",  ids:["retail","food_retail","arts_events","insurance"]},
+     {label:"W3: REGIONAL FINANCIAL SHOCK",   ids:["equity_mkts","fx_mkts","credit_mkts","commodity_mkts"]},
+     {label:"W4: HEALTHCARE SYSTEM STRAIN",   ids:["hospitals","pharma_mfg","labour_health","biotech"]},
+     {label:"W5: FISCAL & TRADE DAMAGE",      ids:["tax_revenue","sovereign_debt","ports","shipping"]},
+   ]
+ },
+ // 11 — MERS South Korea 2015
+ {
+   name:"MERS 2015 — SOUTH KOREA OUTBREAK",
+   origin:"hospitals",
+   waves:[
+     {label:"W1: HOSPITAL QUARANTINES",       ids:["labour_health","pharma_retail","insurance","biotech"]},
+     {label:"W2: CONSUMER SPENDING COLLAPSE", ids:["retail","hospitality","tourism","arts_events"]},
+     {label:"W3: AVIATION & TRADE IMPACT",    ids:["aviation","jet_fuel","shipping","ports"]},
+     {label:"W4: FINANCIAL MARKET REACTION",  ids:["equity_mkts","fx_mkts","credit_mkts","labour_service"]},
+     {label:"W5: FISCAL & HEALTH INVESTMENT", ids:["tax_revenue","sovereign_debt","central_banks","welfare_state"]},
+   ]
+ },
+ // 12 — BSE Mad Cow
+ {
+   name:"BSE / MAD COW DISEASE — UK 1996",
+   origin:"agri_prod",
+   waves:[
+     {label:"W1: MASS CATTLE CULLING",        ids:["food_proc","cold_chain","labour_mfg","commodity_mkts"]},
+     {label:"W2: EU EXPORT BAN (10 YEARS)",   ids:["shipping","ports","food_retail","insurance"]},
+     {label:"W3: TOURISM & RURAL COLLAPSE",   ids:["tourism","hospitality","labour_service","arts_events"]},
+     {label:"W4: CREDIT & FISCAL STRESS",     ids:["credit_mkts","tax_revenue","equity_mkts","welfare_state"]},
+     {label:"W5: REGULATORY OVERHAUL COSTS",  ids:["sovereign_debt","central_banks","pharma_mfg","retail"]},
+   ]
+ },
+ // 13 — Ebola West Africa
+ {
+   name:"EBOLA — WEST AFRICAN EPIDEMIC 2014",
+   origin:"hospitals",
+   waves:[
+     {label:"W1: HEALTH SYSTEM COLLAPSE",     ids:["labour_health","pharma_mfg","pharma_retail","cold_chain"]},
+     {label:"W2: FDI FLIGHT & TRADE HALT",    ids:["shipping","ports","fx_mkts","commodity_mkts"]},
+     {label:"W3: REGIONAL ECONOMIC SEIZURE",  ids:["agri_prod","food_proc","labour_mfg","labour_service"]},
+     {label:"W4: SOVEREIGN FISCAL CRISIS",    ids:["sovereign_debt","tax_revenue","welfare_state","insurance"]},
+     {label:"W5: LONG-TERM SCARRING",         ids:["equity_mkts","credit_mkts","central_banks","construction"]},
+   ]
+ },
+ // 14 — Citrus Greening HLB
+ {
+   name:"CITRUS GREENING — HUANGLONGBING (HLB)",
+   origin:"agri_prod",
+   waves:[
+     {label:"W1: ORCHARD DESTRUCTION",        ids:["food_proc","labour_mfg","commodity_mkts","cold_chain"]},
+     {label:"W2: EXPORT REVENUE COLLAPSE",    ids:["food_retail","fx_mkts","shipping","ports"]},
+     {label:"W3: RURAL LABOUR DISPLACEMENT",  ids:["labour_service","welfare_state","retail","insurance"]},
+     {label:"W4: INVESTMENT EXODUS",          ids:["credit_mkts","pe_vc","equity_mkts","construction"]},
+     {label:"W5: FISCAL & FOOD SECURITY",     ids:["tax_revenue","sovereign_debt","central_banks","hospitals"]},
+   ]
+ },
+ // 15 — Xylella Europe
+ {
+   name:"XYLELLA FASTIDIOSA — EUROPEAN OLIVE CRISIS",
+   origin:"agri_prod",
+   waves:[
+     {label:"W1: OLIVE GROVE DESTRUCTION",    ids:["food_proc","labour_mfg","commodity_mkts","tourism"]},
+     {label:"W2: ITALIAN EXPORT CRISIS",      ids:["shipping","ports","food_retail","fx_mkts"]},
+     {label:"W3: RURAL ECONOMY COLLAPSE",     ids:["hospitality","labour_service","arts_events","insurance"]},
+     {label:"W4: EU REGULATORY RESPONSE",     ids:["credit_mkts","equity_mkts","tax_revenue","welfare_state"]},
+     {label:"W5: STRUCTURAL AGRICULTURAL LOSS",ids:["sovereign_debt","central_banks","construction","pe_vc"]},
+   ]
+ },
+ // 16 — Anthrax Letters
+ {
+   name:"ANTHRAX LETTER ATTACKS — US 2001",
+   origin:"food_retail",
+   waves:[
+     {label:"W1: POSTAL SYSTEM SHUTDOWN",     ids:["retail","labour_service","insurance","govt_implied"]},
+     {label:"W2: CONSUMER & OFFICE FEAR",     ids:["hospitality","arts_events","aviation","tourism"]},
+     {label:"W3: DECONTAMINATION COSTS",      ids:["pharma_mfg","hospitals","labour_health","construction"]},
+     {label:"W4: SECURITY INVESTMENT SURGE",  ids:["biotech","pe_vc","equity_mkts","credit_mkts"]},
+     {label:"W5: FISCAL & REGULATORY IMPACT", ids:["tax_revenue","sovereign_debt","welfare_state","central_banks"]},
+   ]
+ },
+ // 17 — HPAI US 2022
+ {
+   name:"HPAI H5N1 — US POULTRY & DAIRY 2022",
+   origin:"agri_prod",
+   waves:[
+     {label:"W1: MASS POULTRY CULLS",         ids:["food_proc","cold_chain","labour_mfg","commodity_mkts"]},
+     {label:"W2: EGG & DAIRY PRICE SHOCK",    ids:["food_retail","retail","insurance","rail_freight"]},
+     {label:"W3: SUPPLY CHAIN INFLATION",     ids:["fx_mkts","welfare_state","labour_service","hospitality"]},
+     {label:"W4: FINANCIAL MARKET PRESSURE",  ids:["equity_mkts","credit_mkts","pe_vc","biotech"]},
+     {label:"W5: FISCAL & HEALTH RESPONSE",   ids:["tax_revenue","sovereign_debt","hospitals","labour_health"]},
+   ]
+ },
+ // 18 — Nipah
+ {
+   name:"NIPAH VIRUS — NEXT PANDEMIC SCENARIO",
+   origin:"hospitals",
+   waves:[
+     {label:"W1: HOSPITAL ZERO CONTAINMENT",  ids:["labour_health","pharma_mfg","biotech","cold_chain"]},
+     {label:"W2: AVIATION TRAVEL BAN",        ids:["aviation","tourism","jet_fuel","insurance"]},
+     {label:"W3: GLOBAL FEAR RESPONSE",       ids:["retail","hospitality","arts_events","equity_mkts"]},
+     {label:"W4: FINANCIAL SYSTEM STRESS",    ids:["credit_mkts","fx_mkts","commodity_mkts","sovereign_debt"]},
+     {label:"W5: MACRO COLLAPSE RISK",        ids:["central_banks","tax_revenue","welfare_state","labour_service","labour_mfg"]},
+   ]
+ },
+];
+
+// ═══════════════════════════════════════════════════════════════
+// BUILD SVG
+// ═══════════════════════════════════════════════════════════════
+const svg = d3.select("#canvas").append("svg");
+
+const defs = svg.append("defs");
+const glow = defs.append("filter").attr("id","glow");
+glow.append("feGaussianBlur").attr("stdDeviation","3.5").attr("result","blur");
+const fm = glow.append("feMerge");
+fm.append("feMergeNode").attr("in","blur");
+fm.append("feMergeNode").attr("in","SourceGraphic");
+
+const zoomG = svg.append("g");
+svg.call(d3.zoom().scaleExtent([0.2,4]).on("zoom", e => zoomG.attr("transform",e.transform)));
+
+// Set sector fill/stroke on nodes
+nodes.forEach(n => {
+ const s = SECTORS[n.sector] || SECTORS.transport;
+ n.color = s.color;
+ n.stroke = s.stroke;
+});
+
+// ── SIMULATION ──
+const sim = d3.forceSimulation(nodes)
+ .force("link", d3.forceLink(links).id(d=>d.id).distance(110).strength(0.45))
+ .force("charge", d3.forceManyBody().strength(-520))
+ .force("center", d3.forceCenter(W/2, H/2))
+ .force("collision", d3.forceCollide().radius(d=>d.r+20))
+ .force("x", d3.forceX(W/2).strength(0.04))
+ .force("y", d3.forceY(H/2).strength(0.04));
+
+// ── LINK COLOURS by sector ──
+const linkEl = zoomG.append("g").selectAll("line")
+ .data(links).join("line")
+ .attr("class","link")
+ .attr("stroke", d => {
+   const sn = nodes.find(n=>n.id === (d.source.id||d.source));
+   return sn ? sn.stroke : "#4488ff";
+ })
+ .attr("stroke-width", 1.2);
+
+// ── NODES ──
+const nodeG = zoomG.append("g").selectAll("g")
+ .data(nodes).join("g")
+ .attr("class","node")
+ .attr("data-id", d=>d.id)
+ .call(d3.drag()
+   .on("start",(e,d)=>{if(!e.active)sim.alphaTarget(.3).restart();d.fx=d.x;d.fy=d.y})
+   .on("drag",(e,d)=>{d.fx=e.x;d.fy=e.y})
+   .on("end",(e,d)=>{if(!e.active)sim.alphaTarget(0);d.fx=null;d.fy=null}))
+ .on("click",(e,d)=>{ e.stopPropagation(); panelJustCollapsed=false; showNodePanel(d); });
+
+nodeG.append("circle")
+ .attr("r", d=>d.r)
+ .attr("fill", d=>d.color+"44")
+ .attr("stroke", d=>d.stroke)
+ .style("filter","url(#glow)");
+
+nodeG.append("text")
+ .attr("dy", d=>d.r+12)
+ .text(d=>d.label);
+
+sim.on("tick",()=>{
+ linkEl
+   .attr("x1",d=>d.source.x).attr("y1",d=>d.source.y)
+   .attr("x2",d=>d.target.x).attr("y2",d=>d.target.y);
+ nodeG.attr("transform",d=>`translate(${d.x},${d.y})`);
+});
+
+// ═══════════════════════════════════════════════════════════════
+// COLLAPSIBLE PANEL & LEGEND
+// ═══════════════════════════════════════════════════════════════
+let panelOpen = true;
+function togglePanel(){
+ panelOpen = !panelOpen;
+ document.getElementById("panel-body").classList.toggle("collapsed", !panelOpen);
+ document.getElementById("panel-toggle").style.transform = panelOpen ? "" : "rotate(180deg)";
+ document.getElementById("panel-header").classList.toggle("open", panelOpen);
+}
+
+let legendOpen = true;
+function toggleLegend(){
+ legendOpen = !legendOpen;
+ document.getElementById("legend-body").classList.toggle("collapsed", !legendOpen);
+ document.getElementById("legend-toggle").style.transform = legendOpen ? "" : "rotate(180deg)";
+ document.getElementById("legend-header").classList.toggle("open", legendOpen);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// PANEL
+// ═══════════════════════════════════════════════════════════════
+function showNodePanel(d) {
+ if(!panelOpen){ panelOpen=true; document.getElementById("panel-body").classList.remove("collapsed"); document.getElementById("panel-toggle").style.transform=""; document.getElementById("panel-header").classList.add("open"); }
+ document.getElementById("panel-header-txt").textContent = d.label.toUpperCase();
+ document.getElementById("panel-idle").style.display="none";
+ document.getElementById("panel-node").style.display="block";
+ document.getElementById("pn-name").textContent = d.label;
+ const tag = document.getElementById("pn-tag");
+ tag.textContent = d.sector.toUpperCase().replace("_"," ") + " SECTOR";
+ tag.style.color = d.stroke;
+ document.getElementById("pn-desc").textContent = d.desc;
+
+ setMetric("exp", d.exp);
+ setMetric("sys", d.sys);
+ setMetric("rec", d.rec);
+
+ const hits = (d.hits||[]).map(h=>`<span class="hit">→ ${h}</span>`).join("");
+ document.getElementById("pn-hits").innerHTML = hits;
+
+ // ── IMPACT DATA ──
+ const scIdx = currentScenario ? scenarios.indexOf(currentScenario) : -1;
+ const impactMap = scIdx >= 0 ? (IMPACT_BN[scIdx] || {}) : {};
+ const entry = impactMap[d.id];
+
+ if(entry && currentScenario){
+   const pStr = fmtBn(entry.p, true);
+   const sStr = fmtBn(entry.s, false);
+   const pctRecov = entry.p > 0 ? Math.round((1 - entry.s/entry.p)*100) : 0;
+
+   document.getElementById("impact-none").style.display = "none";
+   document.getElementById("impact-figures").style.display = "block";
+   document.getElementById("impact-scenario-name").textContent = currentScenario.name;
+   document.getElementById("impact-peak").textContent = pStr || "—";
+   document.getElementById("impact-peak-note").textContent = "Gross/mark-to-market at peak shock";
+   document.getElementById("impact-struct").textContent = sStr || "—";
+   document.getElementById("impact-struct-note").textContent =
+     pctRecov > 5
+       ? `~${pctRecov}% expected to recover over time`
+       : "Largely unrecoverable — structural damage";
+ } else {
+   document.getElementById("impact-none").style.display = "block";
+   document.getElementById("impact-figures").style.display = "none";
+   document.getElementById("impact-scenario-name").textContent = "";
+ }
+
+ // Highlight connected
+ linkEl.classed("lit", l=>l.source.id===d.id||l.target.id===d.id)
+       .classed("dim", l=>l.source.id!==d.id&&l.target.id!==d.id)
+       .classed("cascade",false);
+ nodeG.classed("affected", n=>n.id===d.id);
+}
+
+function setMetric(id, val){
+ document.getElementById(`b-${id}`).style.width = val+"%";
+ // No separate val display needed — keep clean
+}
+
+// ═══════════════════════════════════════════════════════════════
+// SCENARIO TRAY
+// ═══════════════════════════════════════════════════════════════
+let trayOpen = false;
+document.getElementById("btn-scenario").addEventListener("click",()=>{
+ trayOpen=!trayOpen;
+ document.getElementById("scenario-tray").style.display = trayOpen?"block":"none";
+ document.getElementById("btn-scenario").classList.toggle("active",trayOpen);
+});
+
+document.querySelectorAll(".sc-item").forEach(el=>{
+ el.addEventListener("click",()=>{
+   const sc = scenarios[+el.dataset.sc];
+   trayOpen=false;
+   document.getElementById("scenario-tray").style.display="none";
+   document.getElementById("btn-scenario").classList.remove("active");
+   runScenario(sc);
+ });
+});
+
+// ═══════════════════════════════════════════════════════════════
+// ECONOMIC IMPACT MATRIX — dual values per node per scenario
+//
+// p = PEAK / GROSS loss $bn  (label display — the dramatic headline number)
+//     Includes mark-to-market equity crashes, peak revenue loss, gross fiscal cost
+//
+// s = STRUCTURAL / PERMANENT damage $bn  (drives node SIZE)
+//     Revenue permanently destroyed + sustained fiscal damage + unrecoverable losses
+//     Equity/credit market losses heavily discounted (~15–25% of peak = permanent)
+//     because 60–80% of market cap typically recovers within 6–18 months
+//
+// This separation means:
+//   COVID equity markets: peak $9tn label, but sizes on ~$1.4tn permanent impairment
+//   COVID aviation: peak $201bn ≈ structural $190bn (revenue gone, not recoverable)
+//   Ebola sovereign debt: peak $5bn ≈ structural $4bn (actual GDP lost, stays lost)
+//
+// Sources: IATA, IMF, World Bank, FAO, OECD, McKinsey, Lloyd's, sector post-mortems
+// ═══════════════════════════════════════════════════════════════
+const IMPACT_BN = {
+ // 0 — COVID-19  (total permanent damage ~$3.5–5trn; peak financial ~$13trn)
+ 0:{
+   aviation:      {p:201,   s:190},   // IATA: 2020 revenue loss, largely permanent
+   tourism:       {p:1100,  s:900},   // UNWTO: international arrivals -74%; structural jobs lost
+   jet_fuel:      {p:90,    s:75},    // IEA: jet fuel demand crater; partial recovery
+   hospitality:   {p:570,   s:420},   // Hotels/restaurants: permanent closures, structural
+   labour_service:{p:800,   s:550},   // Permanent job loss + wage scarring
+   crude_oil:     {p:400,   s:180},   // Price crash recovered; permanent = capex cancellation
+   arts_events:   {p:180,   s:120},   // Venue closures, permanent capacity loss
+   retail:        {p:300,   s:80},    // Physical retail structural decline accelerated
+   equity_mkts:   {p:9000,  s:1400},  // Peak: $9tn crash Mar 2020; recovered ~85%; ~15% permanent
+   credit_mkts:   {p:1800,  s:400},   // Spread widening; most reversed with CB intervention
+   fx_mkts:       {p:620,   s:120},   // EM currency damage; partial recovery
+   tax_revenue:   {p:1400,  s:1100},  // UK alone £140bn; sovereign fiscal damage structural
+   sovereign_debt:{p:2200,  s:2200},  // Debt issuance permanent — no recovery, stays on balance sheet
+   welfare_state: {p:900,   s:700},   // Furlough, UI, permanent welfare expansion
+   central_banks: {p:350,   s:200},   // Balance sheet expansion — unwinding takes decade
+   petrostate:    {p:500,   s:280},   // Revenue collapse; partial with oil price recovery
+   insurance:     {p:107,   s:107},   // Lloyd's: paid claims, permanent outflow
+   labour_mfg:    {p:420,   s:280},   // Factory closures, skills attrition permanent
+   construction:  {p:280,   s:160},   // Project delays; many cancelled not deferred
+   pe_vc:         {p:80,    s:40},    // Dry powder held; structural = zombie portfolio costs
+   labour_health: {p:190,   s:190},   // Burnout attrition; structural workforce gap
+   hospitals:     {p:350,   s:250},   // Elective backlog; permanent capacity damage
+   cold_chain:    {p:60,    s:45},    // Infrastructure stress; partial
+   pharma_mfg:    {p:55,    s:40},    // Supply chain restructuring costs
+   shipping:      {p:170,   s:80},    // Rate spikes recovered; structural = fleet overcapacity
+   ports:         {p:120,   s:70},    // Throughput loss; some permanent trade route shifts
+ },
+
+ // 1 — HPAI H5N1  (~$20bn cumulative)
+ 1:{
+   agri_prod:     {p:12,    s:12},
+   food_proc:     {p:8,     s:7},
+   commodity_mkts:{p:5,     s:2},    // Price spike recovered
+   cold_chain:    {p:3,     s:3},
+   labour_mfg:    {p:4,     s:3},
+   food_retail:   {p:6,     s:4},
+   rail_freight:  {p:2,     s:2},
+   insurance:     {p:3,     s:3},
+   ports:         {p:2,     s:1},
+   fx_mkts:       {p:3,     s:1},
+   sovereign_debt:{p:4,     s:4},
+   retail:        {p:3,     s:2},
+   welfare_state: {p:3,     s:3},
+   tax_revenue:   {p:3,     s:3},
+   equity_mkts:   {p:8,     s:1},    // Sector stocks fell; recovered
+   credit_mkts:   {p:2,     s:1},
+   labour_service:{p:4,     s:3},
+   hospitals:     {p:2,     s:2},
+   labour_health: {p:2,     s:2},
+   central_banks: {p:1,     s:1},
+ },
+
+ // 2 — Pharma contamination  (~$5–8bn)
+ 2:{
+   pharma_mfg:    {p:4,     s:4},
+   hospitals:     {p:6,     s:6},
+   pharma_retail: {p:3,     s:3},
+   cold_chain:    {p:1,     s:1},
+   biotech:       {p:2,     s:1},
+   labour_health: {p:3,     s:3},
+   insurance:     {p:5,     s:5},
+   welfare_state: {p:4,     s:4},
+   equity_mkts:   {p:15,    s:2},    // Pharma sector crash; largely recovered
+   credit_mkts:   {p:5,     s:1},
+   pe_vc:         {p:3,     s:2},
+   tax_revenue:   {p:3,     s:3},
+   sovereign_debt:{p:4,     s:4},
+   central_banks: {p:2,     s:1},
+   labour_service:{p:2,     s:2},
+   retail:        {p:1,     s:1},
+ },
+
+ // 3 — Port quarantine  (~$1–2trn peak; ~$600bn structural)
+ 3:{
+   shipping:      {p:180,   s:80},
+   ports:         {p:90,    s:60},
+   cold_chain:    {p:40,    s:35},
+   auto_mfg:      {p:210,   s:180},   // Chip shortage: $210bn permanent production loss
+   rail_freight:  {p:30,    s:25},
+   electronics:   {p:280,   s:240},   // Chip crisis: structural supply chain reorganisation
+   food_proc:     {p:25,    s:20},
+   retail:        {p:150,   s:60},    // Inflation hit; demand recovered
+   food_retail:   {p:35,    s:20},
+   commodity_mkts:{p:90,    s:25},
+   insurance:     {p:40,    s:35},
+   credit_mkts:   {p:120,   s:30},
+   fx_mkts:       {p:80,    s:20},
+   labour_mfg:    {p:90,    s:70},
+   power_grid:    {p:20,    s:15},
+   construction:  {p:25,    s:20},
+   equity_mkts:   {p:600,   s:80},
+   sovereign_debt:{p:80,    s:70},
+   tax_revenue:   {p:60,    s:55},
+   central_banks: {p:50,    s:30},
+   welfare_state: {p:30,    s:25},
+ },
+
+ // 4 — Foot & Mouth UK 2001  (~$12bn)
+ 4:{
+   agri_prod:     {p:3,     s:3},
+   food_proc:     {p:2,     s:2},
+   labour_mfg:    {p:1,     s:1},
+   cold_chain:    {p:1,     s:1},
+   tourism:       {p:4,     s:4},
+   commodity_mkts:{p:2,     s:1},
+   insurance:     {p:3,     s:3},
+   food_retail:   {p:2,     s:1},
+   hospitality:   {p:4,     s:3},
+   labour_service:{p:3,     s:3},
+   arts_events:   {p:1,     s:1},
+   retail:        {p:1,     s:1},
+   credit_mkts:   {p:1,     s:0.5},
+   equity_mkts:   {p:3,     s:0.5},
+   tax_revenue:   {p:2,     s:2},
+   welfare_state: {p:2,     s:2},
+   sovereign_debt:{p:1,     s:1},
+   central_banks: {p:1,     s:0.5},
+   construction:  {p:1,     s:1},
+   biotech:       {p:0.5,   s:0.5},
+ },
+
+ // 5 — EMS Shrimp  (~$10bn)
+ 5:{
+   agri_prod:     {p:5,     s:5},
+   food_proc:     {p:4,     s:4},
+   cold_chain:    {p:2,     s:2},
+   labour_mfg:    {p:2,     s:2},
+   commodity_mkts:{p:3,     s:1},
+   fx_mkts:       {p:2,     s:1},
+   ports:         {p:1,     s:1},
+   food_retail:   {p:2,     s:2},
+   shipping:      {p:1,     s:1},
+   retail:        {p:1,     s:0.5},
+   insurance:     {p:1,     s:1},
+   sovereign_debt:{p:2,     s:2},
+   welfare_state: {p:1,     s:1},
+   tax_revenue:   {p:1,     s:1},
+   credit_mkts:   {p:1,     s:0.3},
+   equity_mkts:   {p:2,     s:0.3},
+   labour_service:{p:2,     s:2},
+   hospitals:     {p:0.5,   s:0.5},
+   labour_health: {p:0.5,   s:0.5},
+ },
+
+ // 6 — UG99 Wheat Rust  (modelled $50bn+)
+ 6:{
+   agri_prod:     {p:30,    s:30},
+   commodity_mkts:{p:25,    s:8},
+   food_proc:     {p:18,    s:16},
+   labour_mfg:    {p:8,     s:7},
+   rail_freight:  {p:4,     s:4},
+   ports:         {p:6,     s:5},
+   shipping:      {p:5,     s:4},
+   food_retail:   {p:15,    s:12},
+   fx_mkts:       {p:12,    s:4},
+   sovereign_debt:{p:20,    s:20},
+   insurance:     {p:8,     s:7},
+   credit_mkts:   {p:10,    s:3},
+   equity_mkts:   {p:20,    s:3},
+   welfare_state: {p:18,    s:16},
+   hospitals:     {p:6,     s:6},
+   tax_revenue:   {p:12,    s:11},
+   labour_service:{p:10,    s:9},
+   central_banks: {p:6,     s:3},
+   petrostate:    {p:4,     s:3},
+   construction:  {p:2,     s:2},
+ },
+
+ // 7 — African Swine Fever  (~$130bn China; ~$1trn global feed/pork repricing)
+ 7:{
+   agri_prod:     {p:80,    s:80},
+   food_proc:     {p:60,    s:55},
+   commodity_mkts:{p:50,    s:15},   // Pork/soy price spike; partially normalised
+   cold_chain:    {p:20,    s:18},
+   labour_mfg:    {p:15,    s:13},
+   food_retail:   {p:40,    s:35},
+   shipping:      {p:12,    s:8},
+   ports:         {p:8,     s:6},
+   insurance:     {p:6,     s:6},
+   fx_mkts:       {p:18,    s:5},
+   retail:        {p:10,    s:6},
+   rail_freight:  {p:6,     s:5},
+   equity_mkts:   {p:25,    s:4},
+   sovereign_debt:{p:10,    s:9},
+   credit_mkts:   {p:8,     s:2},
+   welfare_state: {p:8,     s:7},
+   tax_revenue:   {p:6,     s:6},
+   labour_service:{p:7,     s:6},
+   labour_health: {p:3,     s:3},
+   central_banks: {p:5,     s:2},
+ },
+
+ // 8 — Deliberate contamination  (~$6bn)
+ 8:{
+   food_retail:   {p:3,     s:3},
+   food_proc:     {p:2,     s:2},
+   cold_chain:    {p:1,     s:1},
+   retail:        {p:2,     s:1},
+   insurance:     {p:4,     s:4},
+   labour_service:{p:1,     s:1},
+   hospitality:   {p:1,     s:0.5},
+   commodity_mkts:{p:1,     s:0.3},
+   agri_prod:     {p:1,     s:1},
+   credit_mkts:   {p:2,     s:0.5},
+   equity_mkts:   {p:5,     s:0.8},
+   pe_vc:         {p:1,     s:0.5},
+   pharma_retail: {p:1,     s:1},
+   ports:         {p:1,     s:0.5},
+   shipping:      {p:1,     s:0.5},
+   rail_freight:  {p:0.5,   s:0.5},
+   tax_revenue:   {p:1,     s:1},
+   sovereign_debt:{p:1,     s:0.8},
+   welfare_state: {p:1,     s:0.8},
+   central_banks: {p:0.5,   s:0.3},
+ },
+
+ // 9 — Zika  (~$3.5bn)
+ 9:{
+   tourism:       {p:3,     s:3},
+   aviation:      {p:2,     s:2},
+   hospitality:   {p:2,     s:2},
+   labour_service:{p:1,     s:1},
+   arts_events:   {p:1,     s:0.8},
+   jet_fuel:      {p:1,     s:0.8},
+   insurance:     {p:1,     s:1},
+   retail:        {p:0.5,   s:0.3},
+   fx_mkts:       {p:1,     s:0.3},
+   sovereign_debt:{p:2,     s:2},
+   commodity_mkts:{p:0.5,   s:0.2},
+   credit_mkts:   {p:1,     s:0.3},
+   hospitals:     {p:2,     s:2},
+   pharma_mfg:    {p:1,     s:0.8},
+   biotech:       {p:1,     s:0.8},
+   labour_health: {p:1,     s:1},
+   tax_revenue:   {p:2,     s:2},
+   welfare_state: {p:1,     s:1},
+   central_banks: {p:0.5,   s:0.3},
+   equity_mkts:   {p:2,     s:0.3},
+ },
+
+ // 10 — SARS 2003  (~$54bn)
+ 10:{
+   aviation:      {p:13,    s:12},
+   tourism:       {p:20,    s:18},
+   hospitality:   {p:10,    s:9},
+   jet_fuel:      {p:8,     s:7},
+   labour_service:{p:6,     s:5},
+   retail:        {p:5,     s:3},
+   food_retail:   {p:2,     s:1},
+   arts_events:   {p:4,     s:3},
+   insurance:     {p:3,     s:3},
+   equity_mkts:   {p:18,    s:3},    // Asian markets fell ~15%; recovered within months
+   fx_mkts:       {p:6,     s:1.5},
+   credit_mkts:   {p:5,     s:1.2},
+   commodity_mkts:{p:2,     s:0.8},
+   hospitals:     {p:3,     s:3},
+   pharma_mfg:    {p:2,     s:1.5},
+   labour_health: {p:3,     s:3},
+   tax_revenue:   {p:4,     s:4},
+   sovereign_debt:{p:4,     s:4},
+   ports:         {p:2,     s:1.5},
+   shipping:      {p:2,     s:1.5},
+ },
+
+ // 11 — MERS South Korea 2015  (~$8–10bn)
+ 11:{
+   hospitals:     {p:2,     s:2},
+   labour_health: {p:1,     s:1},
+   pharma_retail: {p:1,     s:0.8},
+   insurance:     {p:1,     s:1},
+   biotech:       {p:0.5,   s:0.4},
+   retail:        {p:4,     s:3},
+   hospitality:   {p:4,     s:3.5},
+   tourism:       {p:3,     s:3},
+   arts_events:   {p:2,     s:1.5},
+   aviation:      {p:2,     s:1.8},
+   jet_fuel:      {p:1,     s:0.8},
+   shipping:      {p:0.5,   s:0.4},
+   equity_mkts:   {p:5,     s:0.8},
+   fx_mkts:       {p:1,     s:0.3},
+   credit_mkts:   {p:1,     s:0.3},
+   labour_service:{p:3,     s:2.5},
+   tax_revenue:   {p:1,     s:1},
+   sovereign_debt:{p:1,     s:1},
+   central_banks: {p:0.5,   s:0.3},
+   welfare_state: {p:1,     s:0.8},
+ },
+
+ // 12 — BSE / Mad Cow  (~$30bn)
+ 12:{
+   agri_prod:     {p:6,     s:6},
+   food_proc:     {p:5,     s:5},
+   cold_chain:    {p:2,     s:2},
+   commodity_mkts:{p:4,     s:1.5},
+   shipping:      {p:3,     s:2.5},
+   ports:         {p:2,     s:1.5},
+   food_retail:   {p:4,     s:3.5},
+   insurance:     {p:3,     s:3},
+   tourism:       {p:5,     s:5},
+   hospitality:   {p:4,     s:3.5},
+   labour_service:{p:3,     s:3},
+   arts_events:   {p:1,     s:0.8},
+   credit_mkts:   {p:2,     s:0.5},
+   equity_mkts:   {p:6,     s:0.8},
+   tax_revenue:   {p:3,     s:3},
+   welfare_state: {p:3,     s:3},
+   sovereign_debt:{p:2,     s:2},
+   central_banks: {p:1,     s:0.5},
+   pharma_mfg:    {p:0.5,   s:0.4},
+   retail:        {p:2,     s:1.5},
+ },
+
+ // 13 — Ebola West Africa  (~$14bn mid-estimate; $2.2bn direct 3-country)
+ 13:{
+   hospitals:     {p:1.5,   s:1.5},
+   labour_health: {p:1,     s:1},
+   pharma_mfg:    {p:0.5,   s:0.5},
+   cold_chain:    {p:0.5,   s:0.5},
+   shipping:      {p:1,     s:0.8},
+   ports:         {p:1,     s:0.8},
+   fx_mkts:       {p:3,     s:2},
+   commodity_mkts:{p:2,     s:0.8},
+   agri_prod:     {p:2,     s:2},
+   food_proc:     {p:1,     s:1},
+   labour_mfg:    {p:2,     s:2},
+   labour_service:{p:3,     s:3},
+   sovereign_debt:{p:5,     s:5},    // Actual GDP lost — permanent in fragile states
+   tax_revenue:   {p:4,     s:4},
+   welfare_state: {p:3,     s:3},
+   insurance:     {p:1,     s:1},
+   equity_mkts:   {p:2,     s:0.3},
+   credit_mkts:   {p:1,     s:0.3},
+   central_banks: {p:0.5,   s:0.3},
+   construction:  {p:0.5,   s:0.5},
+ },
+
+ // 14 — Citrus Greening HLB  (~$20bn global)
+ 14:{
+   agri_prod:     {p:10,    s:10},
+   food_proc:     {p:5,     s:5},
+   labour_mfg:    {p:3,     s:3},
+   commodity_mkts:{p:4,     s:1.5},
+   cold_chain:    {p:2,     s:2},
+   food_retail:   {p:3,     s:2.5},
+   fx_mkts:       {p:2,     s:0.8},
+   shipping:      {p:1,     s:0.8},
+   ports:         {p:1,     s:0.8},
+   retail:        {p:1,     s:0.8},
+   insurance:     {p:2,     s:2},
+   sovereign_debt:{p:2,     s:2},
+   welfare_state: {p:2,     s:2},
+   tax_revenue:   {p:2,     s:2},
+   credit_mkts:   {p:1,     s:0.3},
+   pe_vc:         {p:1,     s:0.8},
+   equity_mkts:   {p:2,     s:0.3},
+   construction:  {p:1,     s:1},
+   labour_service:{p:3,     s:3},
+   hospitals:     {p:0.5,   s:0.5},
+ },
+
+ // 15 — Xylella fastidiosa  (€5–20bn EU)
+ 15:{
+   agri_prod:     {p:8,     s:8},
+   food_proc:     {p:5,     s:5},
+   labour_mfg:    {p:3,     s:3},
+   commodity_mkts:{p:3,     s:1.2},
+   tourism:       {p:2,     s:2},
+   shipping:      {p:1,     s:0.8},
+   ports:         {p:1,     s:0.8},
+   food_retail:   {p:3,     s:2.5},
+   fx_mkts:       {p:2,     s:0.6},
+   hospitality:   {p:2,     s:1.8},
+   labour_service:{p:3,     s:3},
+   arts_events:   {p:1,     s:0.8},
+   credit_mkts:   {p:1,     s:0.3},
+   equity_mkts:   {p:2,     s:0.3},
+   tax_revenue:   {p:2,     s:2},
+   welfare_state: {p:2,     s:2},
+   sovereign_debt:{p:2,     s:2},
+   central_banks: {p:0.5,   s:0.3},
+   construction:  {p:1,     s:1},
+   pe_vc:         {p:0.5,   s:0.4},
+ },
+
+ // 16 — Anthrax Letters 2001  (~$6bn)
+ 16:{
+   retail:        {p:2,     s:2},
+   labour_service:{p:1,     s:1},
+   insurance:     {p:3,     s:3},
+   hospitality:   {p:0.5,   s:0.4},
+   arts_events:   {p:0.5,   s:0.4},
+   aviation:      {p:0.5,   s:0.4},
+   tourism:       {p:0.5,   s:0.4},
+   pharma_mfg:    {p:1,     s:0.8},
+   hospitals:     {p:1,     s:1},
+   labour_health: {p:0.5,   s:0.5},
+   construction:  {p:2,     s:2},    // Decontamination physical costs
+   biotech:       {p:0.5,   s:0.4},
+   pe_vc:         {p:0.5,   s:0.3},
+   equity_mkts:   {p:2,     s:0.3},
+   credit_mkts:   {p:0.5,   s:0.2},
+   tax_revenue:   {p:0.5,   s:0.5},
+   sovereign_debt:{p:0.5,   s:0.5},
+   welfare_state: {p:0.5,   s:0.4},
+   central_banks: {p:0.2,   s:0.1},
+   ports:         {p:0.2,   s:0.2},
+ },
+
+ // 17 — HPAI US 2022  (~$3.3bn direct + consumer price impact)
+ 17:{
+   agri_prod:     {p:3,     s:3},
+   food_proc:     {p:3,     s:3},
+   cold_chain:    {p:1,     s:1},
+   labour_mfg:    {p:1,     s:1},
+   commodity_mkts:{p:3,     s:1},
+   food_retail:   {p:5,     s:4},
+   retail:        {p:2,     s:1.5},
+   insurance:     {p:1,     s:1},
+   rail_freight:  {p:0.5,   s:0.4},
+   fx_mkts:       {p:1,     s:0.3},
+   welfare_state: {p:1,     s:1},
+   labour_service:{p:1,     s:1},
+   hospitality:   {p:0.5,   s:0.4},
+   equity_mkts:   {p:3,     s:0.5},
+   credit_mkts:   {p:0.5,   s:0.2},
+   pe_vc:         {p:0.5,   s:0.3},
+   biotech:       {p:1,     s:0.8},
+   tax_revenue:   {p:1,     s:1},
+   sovereign_debt:{p:0.5,   s:0.5},
+   hospitals:     {p:0.5,   s:0.5},
+ },
+
+ // 18 — Nipah (modelled pandemic — catastrophic scenario)
+ 18:{
+   hospitals:     {p:80,    s:80},
+   labour_health: {p:60,    s:60},
+   pharma_mfg:    {p:40,    s:35},
+   biotech:       {p:30,    s:25},
+   cold_chain:    {p:20,    s:18},
+   aviation:      {p:350,   s:330},
+   tourism:       {p:400,   s:370},
+   jet_fuel:      {p:160,   s:140},
+   insurance:     {p:200,   s:190},
+   retail:        {p:250,   s:120},
+   hospitality:   {p:300,   s:260},
+   arts_events:   {p:120,   s:100},
+   credit_mkts:   {p:600,   s:150},
+   fx_mkts:       {p:300,   s:80},
+   commodity_mkts:{p:80,    s:30},
+   sovereign_debt:{p:800,   s:800},   // Pandemic debt permanent
+   central_banks: {p:200,   s:120},
+   tax_revenue:   {p:500,   s:480},
+   welfare_state: {p:400,   s:380},
+   labour_service:{p:550,   s:420},
+   labour_mfg:    {p:150,   s:120},
+   equity_mkts:   {p:2000,  s:280},   // Peak $2tn crash; most would recover
+ },
+};
+
+// ── SCALING ──────────────────────────────────────────────────────
+// Node SIZE driven by structural/permanent damage (s value)
+// Node LABEL shows peak/gross figure (p value) with ~ prefix
+// Global max of STRUCTURAL values used for radius scaling
+
+const GLOBAL_MAX_S = (()=>{
+ let max = 0;
+ Object.values(IMPACT_BN).forEach(sc =>
+   Object.values(sc).forEach(v => { if(v.s > max) max = v.s; })
+ );
+ return max; // ~2200 (COVID sovereign debt — permanent)
+})();
+
+const R_IMPACT_MAX = 42;
+function impactToRadius(baseR, s){
+ if(!s || s <= 0) return baseR;
+ // sqrt compression keeps mid-range readable
+ const scaled = Math.sqrt(s / GLOBAL_MAX_S);
+ return baseR + (R_IMPACT_MAX - baseR) * scaled;
+}
+
+// Format value for label
+function fmtBn(val, isPeak){
+ if(!val || val <= 0) return null;
+ const prefix = isPeak ? '~' : '';
+ if(val >= 1000) return `${prefix}$${(val/1000).toFixed(1)}tn`;
+ if(val >= 1)    return `${prefix}$${val < 10 ? val.toFixed(1) : Math.round(val)}bn`;
+ return `${prefix}$${(val*1000).toFixed(0)}m`;
+}
+
+// ═══════════════════════════════════════════════════════════════
+// VIEW MODE — 'temporal' | 'cascade'
+// ═══════════════════════════════════════════════════════════════
+let viewMode = 'temporal'; // default
+
+document.getElementById("btn-viewmode").addEventListener("click", () => {
+ viewMode = viewMode === 'temporal' ? 'cascade' : 'temporal';
+ const btn = document.getElementById("btn-viewmode");
+ const badge = document.getElementById("view-mode-badge");
+ const timeLegend = document.getElementById("time-legend-section");
+ if(viewMode === 'temporal'){
+   btn.textContent = "⏱ Temporal";
+   btn.classList.add("active");
+   badge.textContent = "TEMPORAL";
+   badge.className = "temporal";
+   if(timeLegend) timeLegend.style.display = "block";
+ } else {
+   btn.textContent = "🔴 Cascade";
+   btn.classList.remove("active");
+   badge.textContent = "CASCADE";
+   badge.className = "cascade";
+   if(timeLegend) timeLegend.style.display = "none";
+ }
+ // Re-run current scenario in new mode if one is active
+ if(affectedIds.size > 0 && currentScenario){
+   runScenario(currentScenario);
+ }
+});
+
+// ═══════════════════════════════════════════════════════════════
+// CASCADE ENGINE — temporal wave system
+// ═══════════════════════════════════════════════════════════════
+let timers=[];
+const affectedIds = new Set();
+let currentScenario = null;
+
+// Time labels for each wave index
+const WAVE_TIMES = [
+ {tag:"T = 0",          label:"ORIGIN EVENT"},
+ {tag:"T + hours",      label:"IMMEDIATE IMPACT"},
+ {tag:"T + days",       label:"SHORT-TERM SHOCK"},
+ {tag:"T + weeks",      label:"MEDIUM-TERM SPREAD"},
+ {tag:"T + months",     label:"STRUCTURAL DAMAGE"},
+ {tag:"T + quarters",   label:"MACRO SCARRING"},
+];
+
+// Temporal mode: node stroke colours per wave tier
+const WAVE_STROKE  = ["#ff4040","#ff6820","#ffaa00","#aacc00","#22bbaa","#4488ff"];
+const WAVE_FILL    = ["#ff4040","#c06020","#886600","#557700","#116655","#224488"];
+const WAVE_TCLASS  = ["t0","t1","t2","t3","t4","t5"];
+
+// Cascade mode: single uniform colour scheme
+const CASCADE_STROKE_ORIGIN = "#ff6666";
+const CASCADE_STROKE_HIT    = "#ffaa44";
+const CASCADE_FILL_ORIGIN   = "#ff4040";
+const CASCADE_FILL_HIT      = "#c06020";
+
+function runScenario(sc){
+ resetAll();
+ currentScenario = sc;
+ document.getElementById("wave-display").style.display="block";
+ document.getElementById("status-txt").textContent=`⚠ ${sc.name}`;
+ document.getElementById("status-txt").classList.remove("idle");
+ document.getElementById("btn-scenario").classList.add("active");
+
+ if(viewMode === 'temporal'){
+   runTemporal(sc);
+ } else {
+   runCascade(sc);
+ }
+}
+
+function runTemporal(sc){
+ markAffected(sc.origin, WAVE_FILL[0], WAVE_STROKE[0], WAVE_TCLASS[0]);
+ showWave(0);
+ sc.waves.forEach((wave,wi)=>{
+   const tier = wi+1;
+   const t = setTimeout(()=>{
+     wave.ids.forEach(id=>{
+       if(!affectedIds.has(id)){
+         markAffected(id, WAVE_FILL[tier], WAVE_STROKE[tier], WAVE_TCLASS[tier]);
+       }
+       linkEl.filter(l=>{
+         const sid = l.source.id||l.source, tid = l.target.id||l.target;
+         return (affectedIds.has(sid)&&id===tid)||(affectedIds.has(tid)&&id===sid);
+       }).classed("cascade",true).classed("dim",false).classed("lit",false)
+         .style("stroke", WAVE_STROKE[tier]);
+     });
+     showWave(tier);
+     linkEl.filter(function(){ return !d3.select(this).classed("cascade"); }).classed("dim",true);
+     nodeG.filter(n=>!affectedIds.has(n.id)).select("circle")
+       .attr("fill", d=>d.color+"18").attr("stroke",d=>d.stroke+"55");
+   }, 900*tier);
+   timers.push(t);
+ });
+}
+
+function runCascade(sc){
+ markAffected(sc.origin, CASCADE_FILL_ORIGIN, CASCADE_STROKE_ORIGIN, WAVE_TCLASS[0]);
+ showWaveCascade(0, sc.waves.length);
+ sc.waves.forEach((wave,wi)=>{
+   const t = setTimeout(()=>{
+     wave.ids.forEach(id=>{
+       if(!affectedIds.has(id)){
+         markAffected(id, CASCADE_FILL_HIT, CASCADE_STROKE_HIT, WAVE_TCLASS[wi+1]);
+       }
+       linkEl.filter(l=>{
+         const sid = l.source.id||l.source, tid = l.target.id||l.target;
+         return (affectedIds.has(sid)&&id===tid)||(affectedIds.has(tid)&&id===sid);
+       }).classed("cascade",true).classed("dim",false).classed("lit",false)
+         .style("stroke", null); // use CSS cascade colour (red dashes)
+     });
+     showWaveCascade(wi+1, sc.waves.length);
+     linkEl.filter(function(){ return !d3.select(this).classed("cascade"); }).classed("dim",true);
+     nodeG.filter(n=>!affectedIds.has(n.id)).select("circle")
+       .attr("fill", d=>d.color+"18").attr("stroke",d=>d.stroke+"55");
+   }, 900*(wi+1));
+   timers.push(t);
+ });
+}
+
+function markAffected(id, fill, stroke, tclass){
+ affectedIds.add(id);
+ const ng = nodeG.filter(n=>n.id===id);
+ WAVE_TCLASS.forEach(c=>ng.classed(c,false));
+ ng.classed("affected",true).classed(tclass,true);
+
+ // Compute impact radius from structural (s) value; label from peak (p) value
+ const scIdx = currentScenario ? scenarios.indexOf(currentScenario) : -1;
+ const impactMap = scIdx >= 0 ? (IMPACT_BN[scIdx] || {}) : {};
+ const entry = impactMap[id];
+ const s = entry ? entry.s : 0;
+ const p = entry ? entry.p : 0;
+ const node = nodes.find(n=>n.id===id);
+ const baseR = node ? node.r : 12;
+ const newR = impactToRadius(baseR, s);
+
+ ng.select("circle")
+   .attr("fill", fill+"55")
+   .attr("stroke", stroke)
+   .transition().duration(600).ease(d3.easeCubicOut)
+   .attr("r", newR);
+
+ // Label: show peak figure with ~ to signal gross/peak, structural in parens if differs
+ const label = node ? node.label : id;
+ const peakStr  = fmtBn(p, true);
+ const structStr = (s > 0 && Math.abs(p - s) / Math.max(p,1) > 0.15) ? fmtBn(s, false) : null;
+ const impactLabel = peakStr
+   ? (structStr ? `${label} · ${peakStr} (${structStr} perm.)` : `${label} · ${peakStr}`)
+   : label;
+
+ ng.select("text")
+   .transition().duration(600).ease(d3.easeCubicOut)
+   .attr("dy", newR + 12)
+   .text(impactLabel);
+}
+
+function showWave(n){
+ const wt = WAVE_TIMES[n] || WAVE_TIMES[WAVE_TIMES.length-1];
+ document.getElementById("wave-label-main").textContent = wt.label;
+ document.getElementById("wave-time-tag").textContent   = wt.tag;
+ for(let i=0;i<=5;i++){
+   const seg = document.getElementById(`wts-${i}`);
+   if(seg) seg.classList.toggle("active", i<=n);
+ }
+}
+
+function showWaveCascade(n, total){
+ const wt = WAVE_TIMES[n] || {label: `WAVE ${n}`, tag: `WAVE ${n} OF ${total}`};
+ document.getElementById("wave-label-main").textContent = wt.label;
+ document.getElementById("wave-time-tag").textContent   = `WAVE ${n} OF ${total}`;
+ for(let i=0;i<=5;i++){
+   const seg = document.getElementById(`wts-${i}`);
+   if(seg) seg.classList.toggle("active", i<=n);
+ }
+}
+
+// ═══════════════════════════════════════════════════════════════
+// RESET
+// ═══════════════════════════════════════════════════════════════
+function resetAll(){
+ timers.forEach(clearTimeout); timers=[];
+ affectedIds.clear();
+ currentScenario = null;
+ panelJustCollapsed = false;
+ nodeG.classed("affected",false);
+ WAVE_TCLASS.forEach(c=>nodeG.classed(c,false));
+ // Restore base radii with transition
+ nodeG.select("circle")
+   .transition().duration(500).ease(d3.easeCubicOut)
+   .attr("r", d=>d.r)
+   .attr("fill",d=>d.color+"44")
+   .attr("stroke",d=>d.stroke)
+   .style("stroke",null);
+ nodeG.select("text")
+   .transition().duration(500)
+   .attr("dy", d=>d.r+12)
+   .text(d=>d.label);
+ // Reset timeline bar
+ for(let i=0;i<=5;i++){
+   const seg=document.getElementById(`wts-${i}`);
+   if(seg) seg.classList.remove("active");
+ }
+ document.getElementById("wave-label-main").textContent="ORIGIN EVENT";
+ document.getElementById("wave-time-tag").textContent="T = 0";
+ document.getElementById("panel-header-txt").textContent="NODE INFO";
+ document.getElementById("panel-idle").style.display="block";
+ document.getElementById("panel-node").style.display="none";
+ document.getElementById("status-txt").textContent="● IDLE — SELECT NODE OR RUN SCENARIO";
+ document.getElementById("status-txt").classList.add("idle");
+ document.getElementById("wave-display").style.display="none";
+ document.getElementById("btn-scenario").classList.remove("active");
+ trayOpen=false;
+ document.getElementById("scenario-tray").style.display="none";
+}
+
+document.getElementById("btn-reset").addEventListener("click",resetAll);
+
+// Canvas click: first click collapses node panel, second click restores scenario state
+let panelJustCollapsed = false;
+
+svg.on("click", (e) => {
+ if(e.target.tagName === "circle" || e.target.tagName === "text") return;
+
+ const nodeVisible = document.getElementById("panel-node").style.display !== "none";
+
+ // First click: panel is open showing a node — collapse it
+ if(nodeVisible && panelOpen){
+   panelOpen = false;
+   panelJustCollapsed = true;
+   document.getElementById("panel-body").classList.add("collapsed");
+   document.getElementById("panel-toggle").style.transform = "rotate(180deg)";
+   document.getElementById("panel-header").classList.remove("open");
+   return;
+ }
+
+ // Second click: panel is collapsed after a node view — restore scenario/idle graph state
+ if(panelJustCollapsed){
+   panelJustCollapsed = false;
+   // Restore graph: clear node highlight, show scenario cascade or idle state
+   if(affectedIds.size > 0){
+     // Scenario is active — restore cascade visuals
+     linkEl.classed("lit",false).classed("dim",false);
+     linkEl.each(function(l){
+       const sid = l.source.id||l.source, tid = l.target.id||l.target;
+       if(affectedIds.has(sid) && affectedIds.has(tid)){
+         d3.select(this).classed("cascade",true);
+       } else {
+         d3.select(this).style("stroke",null);
+       }
+     });
+     nodeG.each(function(n){
+       if(!affectedIds.has(n.id)){
+         d3.select(this).select("circle")
+           .attr("fill", n.color+"18")
+           .attr("stroke", n.stroke+"55");
+       }
+     });
+   } else {
+     // No scenario — restore fully idle state
+     linkEl.classed("lit",false).classed("dim",false).classed("cascade",false);
+     nodeG.select("circle")
+       .attr("fill", d=>d.color+"44")
+       .attr("stroke", d=>d.stroke);
+   }
+   // Reset panel to idle/header state
+   document.getElementById("panel-header-txt").textContent = affectedIds.size > 0 ? document.getElementById("status-txt").textContent.replace("⚠ ","") : "NODE INFO";
+   document.getElementById("panel-node").style.display = "none";
+   document.getElementById("panel-idle").style.display = "block";
+   // Expand panel
+   panelOpen = true;
+   document.getElementById("panel-body").classList.remove("collapsed");
+   document.getElementById("panel-toggle").style.transform = "";
+   document.getElementById("panel-header").classList.add("open");
+ }
+});
+</script>
+</body>
+</html>
