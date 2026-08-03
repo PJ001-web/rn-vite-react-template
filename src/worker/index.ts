@@ -93,9 +93,9 @@ async function handleContactRequest(request: Request, env: any): Promise<Respons
       { status: 403, headers: { 'Content-Type': 'application/json' } }
     );
   }
-  const name: FormDataEntryValue | null = formData.get('name');
-  const email: FormDataEntryValue | null = formData.get('email');
-  const message: FormDataEntryValue | null = formData.get('message');
+    const name = formData.get('name');
+  const email = formData.get('email');
+  const message = formData.get('message');
   if (!name || !email || !message) {
     return new Response(
       JSON.stringify({ success: false, error: 'Name, email, and message are required' }),
