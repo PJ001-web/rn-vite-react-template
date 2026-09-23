@@ -43,7 +43,6 @@
     var m = document.getElementById('manifestoModal');
     if (!m) return;
     var KEY = 'rn-manifesto-popup-v1';
-    try { if (localStorage.getItem(KEY)) return; } catch (e) {}
     var lastFocus;
     function close() {
       m.classList.remove('open'); m.setAttribute('aria-hidden', 'true');
