@@ -39,20 +39,25 @@
 
   function ready(fn){ if (document.readyState !== 'loading') fn(); else document.addEventListener('DOMContentLoaded', fn); }
   // Manifesto launch pop-up (home page only; shown once until dismissed)
+    // Manifesto launch pop-up (home page only; show on refresh/direct entry, not internal navigation)
   function initModal() {
     var m = document.getElementById('manifestoModal');
     if (!m) return;
-    var KEY = 'rn-manifesto-popup-v1';
+    // Don't show when navigating back from another page on the same site
+    var navEntry = performance.getEntriesByType && performance.getEntriesByType('navigation')[0];
+    var navType = navEntry ? navEntry.type : 'navigate';
+    var referrer = document.referrer;
+    var isInternalNav = (navType === 'navigate' || navType === 'back_forward')
+      && referrer && referrer.indexOf(location.hostname) !== -1;
+    if (isInternalNav) return;
     var lastFocus;
     function close() {
       m.classList.remove('open'); m.setAttribute('aria-hidden', 'true');
-      try { localStorage.setItem(KEY, '1'); } catch (e) {}
       document.removeEventListener('keydown', onKey);
       if (lastFocus) lastFocus.focus();
     }
     function onKey(e) { if (e.key === 'Escape') close(); }
     m.addEventListener('click', function (e) { if (e.target === m || e.target.closest('[data-modal-close]')) close(); });
-    m.querySelectorAll('a[href]').forEach(function (a) { a.addEventListener('click', function () { try { localStorage.setItem(KEY, '1'); } catch (e) {} }); });
     setTimeout(function () {
       lastFocus = document.activeElement;
       m.classList.add('open'); m.setAttribute('aria-hidden', 'false');
